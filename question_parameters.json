@@ -1,0 +1,7 @@
+{
+  "DEV-01": {"query": "attendance", "patient": "HG-M042", "start": "2026-01-05", "end": "2026-01-30"},
+  "DEV-02": {"query": "minutes", "patient": "HG-M042", "start": "2026-01-05", "end": "2026-01-30"},
+  "DEV-03": {"query": "compliance", "patient": "HG-M042", "start": "2026-01-05", "end": "2026-01-30"},
+  "DEV-04": {"query": "days", "patient": "HG-M042", "dates": ["2026-01-19", "2026-01-21"]},
+  "DEV-05": {"query": "progress", "patient": "HG-M042", "start": "2026-01-05", "end": "2026-01-30"}
+}
