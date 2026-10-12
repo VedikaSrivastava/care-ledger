@@ -1,6 +1,6 @@
 # Answers
 
-Generated from reconciliation run 1 (extraction version `reviewed`, 31 documents reconciled, 0 not extracted). Full structured results: `answers.json`.
+Generated from reconciliation run 1 (extraction version `fixture`, 31 documents reconciled, 0 not extracted). Full structured results: `answers.json`.
 
 ## DEV-01
 
@@ -41,7 +41,7 @@ Encounters documented by several sources are counted once; their sources are lis
 
 **585-595 minutes** (9.75-9.92 hours).
 
-| Week of | Reviewed | Minutes | Encounters |
+| Week of | Period | Minutes | Encounters |
 |---|---|---|---|
 | 2026-01-05 | 2026-01-05 to 2026-01-11 | 140 | HG-E101 (50), HG-E102 (45), HG-E104 (45) |
 | 2026-01-12 | 2026-01-12 to 2026-01-18 | 120 | HG-E105 (75), HG-E107 (45) |
@@ -57,7 +57,7 @@ Encounters documented by several sources are counted once; their sources are lis
 
 **Goal** (2026-01-05 to 2026-01-30): at least 3 therapy days and 150 minutes per Monday-Sunday week; counted services: family_therapy, group_therapy, individual_therapy. Source: "Episode dates: 2026-01-05 through 2026-01-30"; "Local treatment participation goal: at least 3 therapy days and at least 150 minutes of patient-present therapy in each Monday–Sunday week."; "Patient-present individual, group, and family therapy contribute to the minute goal."
 
-| Week of | Reviewed | Therapy days | Minutes | Result | Depends on |
+| Week of | Period | Therapy days | Minutes | Result | Depends on |
 |---|---|---|---|---|---|
 | 2026-01-05 | 2026-01-05 to 2026-01-11 | 3 | 140 | not_met |  |
 | 2026-01-12 | 2026-01-12 to 2026-01-18 | 2 | 120 | not_met |  |
@@ -95,8 +95,8 @@ Consecutive weeks below goal: definite [['2026-01-05', '2026-01-12']]; dependent
 - accepted: attendance attendance=attended [final, authored 2026-01-21] "Rowan was engaged and able to restate the agreed task." (BH-D106_telehealth_2026-01-21.txt 1163-1217)
 - accepted: break starts_at=2026-01-21T13:20, ends_at=2026-01-21T13:30 [final, authored 2026-01-21] "Connection was lost from 13:20–13:30; there was no therapeutic contact during that interval." (BH-D106_telehealth_2026-01-21.txt 275-367)
 - accepted: encounter_detail service_date=2026-01-21, service_type=individual_therapy [final, authored 2026-01-21] "Individual psychotherapy | Encounter HG-E112 | Appointment HG-A112" (BH-D106_telehealth_2026-01-21.txt 52-118); "January 21, 2026 | Video" (BH-D106_telehealth_2026-01-21.txt 165-189)
-- accepted: presence starts_at=2026-01-21T13:00, ends_at=2026-01-21T13:20 [final, authored 2026-01-21] "Patient contact occurred 13:00–13:20 and 13:30–13:55." (BH-D106_telehealth_2026-01-21.txt 221-274); "HG-A112 | VC-112A | January 21 13:00 | January 21 13:20" (BH-D106_telehealth_2026-01-21.txt 1462-1517)
-- accepted: presence starts_at=2026-01-21T13:30, ends_at=2026-01-21T13:55 [final, authored 2026-01-21] "Patient contact occurred 13:00–13:20 and 13:30–13:55." (BH-D106_telehealth_2026-01-21.txt 221-274); "HG-A112 | VC-112B | January 21 13:30 | January 21 13:55" (BH-D106_telehealth_2026-01-21.txt 1518-1573)
+- disputed: presence starts_at=2026-01-21T13:00, ends_at=2026-01-21T13:20 [final, authored 2026-01-21] "Patient contact occurred 13:00–13:20 and 13:30–13:55." (BH-D106_telehealth_2026-01-21.txt 221-274); "HG-A112 | VC-112A | January 21 13:00 | January 21 13:20" (BH-D106_telehealth_2026-01-21.txt 1462-1517)
+- disputed: presence starts_at=2026-01-21T13:30, ends_at=2026-01-21T13:55 [final, authored 2026-01-21] "Patient contact occurred 13:00–13:20 and 13:30–13:55." (BH-D106_telehealth_2026-01-21.txt 221-274); "HG-A112 | VC-112B | January 21 13:30 | January 21 13:55" (BH-D106_telehealth_2026-01-21.txt 1518-1573)
 
 
 ## DEV-05
@@ -145,5 +145,5 @@ PHQ-9: 18 (2026-01-05) -> 14 (2026-01-16) -> 10 (2026-01-30); change first to la
 - 2026-01-30 [clinician / symptom] Sleep disruption remains an intermittent barrier to a steadier routine. "Sleep disruption remains an intermittent barrier to establishing a steadier daytime routine." (BH-D115_symptom_measure_review_2026-01-30.txt 879-971)
 
 **Limits:**
-- Assessments are distinct by instrument and completion date; imported copies are additional sources, not new assessments.
+- Assessments with the same source form identifier and completion date are one assessment; imported copies are additional sources. Distinct form identifiers are distinct assessments. Results without a form identifier are not merged across documents.
 - Scores and observations are reported as documented and attributed to their reporter; remission, recovery, work readiness, and treatment causation are not inferred.

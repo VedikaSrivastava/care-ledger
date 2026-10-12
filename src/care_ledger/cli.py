@@ -13,7 +13,7 @@ from .config import load_settings
 from .db import ingest_directory, open_db
 from .extract import extract_pending
 from .models import Patient
-from .persist import persist_reviewed
+from .persist import persist_fixtures
 from .queries import QUERIES, run_query
 from .reconcile import reconcile
 from .report import write_report
@@ -38,8 +38,8 @@ def _parser(settings) -> argparse.ArgumentParser:
     extract = sub.add_parser("extract", help="extract claims from documents not yet extracted, then reconcile")
     extract.add_argument("--workers", type=int, default=8)
 
-    load = sub.add_parser("load-reviewed", help="persist reviewed claims through the same writer, then reconcile")
-    load.add_argument("reviewed", type=Path, nargs="?", default=Path("tests/fixtures/reviewed_extractions.json"))
+    load = sub.add_parser("load-fixtures", help="persist fixture claims through the same writer, then reconcile")
+    load.add_argument("fixtures", type=Path, nargs="?", default=Path("tests/fixtures/fixture_extractions.json"))
     load.add_argument("--documents", type=Path, default=Path("documents"))
     load.add_argument("--patient-mrn", default="HG-M042")
     load.add_argument("--patient-name", default="Rowan Mercer")
@@ -99,7 +99,7 @@ def main(argv: list[str] | None = None) -> int:
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
         handlers=[logging.StreamHandler(sys.stderr),
-                  logging.FileHandler(args.db.parent / "execution.log", encoding="utf-8", delay=True)],
+                  logging.FileHandler(args.db.with_name(args.db.stem + ".log"), encoding="utf-8", delay=True)],
     )
     db = open_db(args.db)
     version = args.extraction_version
@@ -121,14 +121,14 @@ def main(argv: list[str] | None = None) -> int:
                 _dump({"failed": summary.failed, **_status(db, version)})
                 return 1
             _dump(_status(db, version))
-        elif args.command == "load-reviewed":
-            reviewed = json.loads(args.reviewed.read_text(encoding="utf-8"))
+        elif args.command == "load-fixtures":
+            fixtures = json.loads(args.fixtures.read_text(encoding="utf-8"))
             patient = Patient(mrn=args.patient_mrn, name=args.patient_name,
                               birth_date=date.fromisoformat(args.birth_date))
-            persisted, skipped = persist_reviewed(
-                db, args.documents, reviewed, patient=patient, version=version, producer="human-review"
+            persisted, skipped = persist_fixtures(
+                db, args.documents, fixtures, patient=patient, version=version, producer="fixture"
             )
-            log.info("load-reviewed persisted=%d skipped=%d version=%s", persisted, skipped, version)
+            log.info("load-fixtures persisted=%d skipped=%d version=%s", persisted, skipped, version)
             if persisted or skipped:
                 run_id = reconcile(db, version)
                 log.info("reconcile run=%d", run_id)

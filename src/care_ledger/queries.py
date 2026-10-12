@@ -53,8 +53,10 @@ class Outcome:
         return Range(0, None) if self.duration_status == "unknown" else ZERO
 
     def classify(self, eligible: frozenset[str]) -> tuple[str, str]:
-        if self.detail_status != "established":
-            return "undetermined", f"service date and type are {self.detail_status}"
+        if self.service_date is None:
+            return "undetermined", f"service date is {self.detail_status}"
+        if self.service_type is None:
+            return "undetermined", f"service type is {self.detail_status}"
         if self.service_type not in eligible:
             return "excluded", f"{self.service_type.replace('_', ' ')} is not an eligible therapy service"
         if self.attendance_status != "established":
@@ -107,13 +109,51 @@ def _abstraction(db: sqlite3.Connection, run: sqlite3.Row) -> dict:
         "SELECT count(*) FROM extractions WHERE version = ? AND id <= ?",
         (run["extraction_version"], run["through_extraction_id"]),
     ).fetchone()[0]
+    total = db.execute("SELECT count(*) FROM documents").fetchone()[0]
     pending = db.execute(
         "SELECT count(*) FROM documents d WHERE NOT EXISTS "
         "(SELECT 1 FROM extractions x WHERE x.document_id = d.id AND x.version = ?)",
         (run["extraction_version"],),
     ).fetchone()[0]
-    return {"reconciliation_run": run["id"], "extraction_version": run["extraction_version"],
-            "documents_reconciled": reconciled, "documents_not_extracted": pending}
+    return {
+        "reconciliation_run": run["id"],
+        "extraction_version": run["extraction_version"],
+        "documents_total": total,
+        "documents_reconciled": reconciled,
+        "documents_not_extracted": pending,
+        "coverage_status": "complete" if pending == 0 else "provisional",
+    }
+
+
+def _gate_incomplete_coverage(result: dict) -> dict:
+    """Definitive clinical classifications require a fully extracted corpus."""
+    abstraction = result["abstraction"]
+    if abstraction["coverage_status"] == "complete":
+        return result
+    pending = abstraction["documents_not_extracted"]
+    reason = f"{pending} document(s) not yet extracted; answer is provisional"
+    result["coverage_status"] = "provisional"
+    result["coverage_reason"] = reason
+    for patient in result.get("patients", []):
+        for week in patient.get("weeks", []):
+            if week.get("status") in ("met", "not_met"):
+                week["status"] = "cannot_determine"
+                week["reason"] = reason
+                week["depends_on"] = week.get("depends_on") or ["incomplete_extraction"]
+        below = patient.get("consecutive_weeks_below_goal")
+        if below:
+            below["definite"] = []
+            below["depends_on_unresolved"] = below.get("depends_on_unresolved") or []
+    if "patients_with_consecutive_weeks_below_goal" in result:
+        result["patients_with_consecutive_weeks_below_goal"] = {
+            "definite": [],
+            "depends_on_unresolved": [
+                p["patient"] for p in result.get("patients", [])
+                if p.get("consecutive_weeks_below_goal", {}).get("depends_on_unresolved")
+                or any(w.get("status") == "cannot_determine" for w in p.get("weeks", []))
+            ],
+        }
+    return result
 
 
 def _patient(db: sqlite3.Connection, ref: str) -> sqlite3.Row:
@@ -255,7 +295,7 @@ def minutes(db, run, *, patient: str, start: date, end: date) -> dict:
         week = _in_window(window, first, last)
         _, week_minutes = _total(week, eligible)
         weeks.append({
-            "week_of": monday.isoformat(), "reviewed": [first.isoformat(), last.isoformat()],
+            "week_of": monday.isoformat(), "period": [first.isoformat(), last.isoformat()],
             "partial_week": (last - first).days < 6,
             "minutes": week_minutes.json(), "hours": _hours(week_minutes),
             "encounters": [o.summary(eligible) for o in week if o.classify(eligible)[0] != "excluded"],
@@ -292,16 +332,16 @@ def _plans(db, run, patient_id: int) -> list[dict]:
 
 
 def _week_compliance(plans: list[dict], outcomes: list[Outcome], first: date, last: date) -> dict:
-    review = (first.isoformat(), last.isoformat())
-    active = [pl for pl in plans if pl["start"] <= review[1] and pl["end"] >= review[0]]
+    period = (first.isoformat(), last.isoformat())
+    active = [pl for pl in plans if pl["start"] <= period[1] and pl["end"] >= period[0]]
     requirements = {(pl["min_days"], pl["min_minutes"], pl["services"]) for pl in active}
-    base = {"reviewed": list(review), "partial_week": (last - first).days < 6}
+    base = {"period": list(period), "partial_week": (last - first).days < 6}
     if not requirements:
         return base | {"status": "no_plan", "reason": "no treatment-plan requirement is documented for this week"}
     if len(requirements) > 1:
         return base | {"status": "cannot_determine", "reason": "different plan requirements apply within this week"}
     plan = active[0]
-    if any(pl["start"] > review[0] or pl["end"] < review[1] for pl in active):
+    if any(pl["start"] > period[0] or pl["end"] < period[1] for pl in active):
         return base | {"status": "cannot_determine", "reason": "the plan is in effect for only part of this week"}
     eligible = plan["services"]
     days = _days(outcomes, eligible)
@@ -407,12 +447,13 @@ def progress(db, run, *, patient: str, start: date, end: date) -> dict:
     scope = (run["extraction_version"], run["through_extraction_id"])
     window = (start.isoformat(), end.isoformat())
     scores = db.execute(
-        """SELECT s.id AS assessment_id, s.instrument, s.completed_on, a.id, a.score, a.external_ref, a.authored_on
+        """SELECT s.id AS assessment_id, s.instrument, s.completed_on, s.form_key,
+                  a.id, a.score, a.external_ref, a.authored_on
            FROM assessments s JOIN assertions a ON a.assessment_id = s.id
            JOIN extractions x ON x.id = a.extraction_id
            WHERE s.patient_id = ? AND x.version = ? AND x.id <= ? AND a.source_status = 'final'
              AND s.completed_on BETWEEN ? AND ?
-           ORDER BY s.instrument, s.completed_on, a.id""",
+           ORDER BY s.instrument, s.completed_on, s.form_key, a.id""",
         (p["id"], *scope, *window),
     ).fetchall()
     observations = db.execute(
@@ -428,8 +469,9 @@ def progress(db, run, *, patient: str, start: date, end: date) -> dict:
 
     assessments: dict[int, dict] = {}
     for r in scores:
+        form_id = r["external_ref"] or (None if r["form_key"].startswith("anon:") else r["form_key"] or None)
         entry = assessments.setdefault(r["assessment_id"], {
-            "instrument": r["instrument"], "completed_on": r["completed_on"], "sources": []})
+            "instrument": r["instrument"], "completed_on": r["completed_on"], "form_id": form_id, "sources": []})
         entry["sources"].append({"score": r["score"], "form_id": r["external_ref"], "authored_on": r["authored_on"],
                                  "evidence": evidence[r["id"]]})
     trajectories: dict[str, list] = defaultdict(list)
@@ -455,7 +497,7 @@ def progress(db, run, *, patient: str, start: date, end: date) -> dict:
             for r in observations
         ],
         "limits": [
-            "Assessments are distinct by instrument and completion date; imported copies are additional sources, not new assessments.",
+            "Assessments with the same source form identifier and completion date are one assessment; imported copies are additional sources. Distinct form identifiers are distinct assessments. Results without a form identifier are not merged across documents.",
             "Scores and observations are reported as documented and attributed to their reporter; remission, recovery, work readiness, and treatment causation are not inferred.",
         ],
     }
@@ -474,7 +516,7 @@ QUERIES = {
 def run_query(db: sqlite3.Connection, version: str, name: str, persist: bool = True, **params) -> dict:
     run = current_run(db, version)
     started = time.perf_counter()
-    result = QUERIES[name](db, run, **params) | {"abstraction": _abstraction(db, run)}
+    result = _gate_incomplete_coverage(QUERIES[name](db, run, **params) | {"abstraction": _abstraction(db, run)})
     elapsed = (time.perf_counter() - started) * 1000
     if persist:
         with db:

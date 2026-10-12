@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-10-11T19:46:38-04:00",
+  "measured_at": "2026-10-11T20:12:50-04:00",
   "documents": {
     "count": 31,
     "bytes": 50137
@@ -7,43 +7,43 @@
   "extraction": {
     "model_calls": 0
   },
-  "reconciliation_ms": 0.73,
+  "reconciliation_ms": 0.68,
   "query_latency": {
     "attendance": {
       "runs": 30,
-      "median_ms": 0.22,
-      "p95_ms": 0.28,
-      "max_ms": 0.62
+      "median_ms": 0.23,
+      "p95_ms": 0.29,
+      "max_ms": 0.75
     },
     "minutes": {
       "runs": 30,
-      "median_ms": 0.25,
-      "p95_ms": 0.26,
-      "max_ms": 0.29
+      "median_ms": 0.26,
+      "p95_ms": 0.27,
+      "max_ms": 0.3
     },
     "compliance_patient": {
       "runs": 30,
-      "median_ms": 0.26,
-      "p95_ms": 0.37,
-      "max_ms": 0.64
+      "median_ms": 0.27,
+      "p95_ms": 0.44,
+      "max_ms": 0.86
     },
     "days": {
       "runs": 30,
       "median_ms": 0.36,
-      "p95_ms": 0.39,
-      "max_ms": 1.39
+      "p95_ms": 0.42,
+      "max_ms": 0.67
     },
     "progress": {
       "runs": 30,
       "median_ms": 0.2,
-      "p95_ms": 0.23,
-      "max_ms": 0.39
+      "p95_ms": 0.21,
+      "max_ms": 0.45
     },
     "compliance_collection": {
       "runs": 30,
-      "median_ms": 0.26,
-      "p95_ms": 0.27,
-      "max_ms": 0.34
+      "median_ms": 0.27,
+      "p95_ms": 0.28,
+      "max_ms": 0.35
     }
   },
   "database_bytes": 356352

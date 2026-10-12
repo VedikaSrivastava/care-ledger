@@ -27,7 +27,6 @@ def _extraction(db: sqlite3.Connection, version: str) -> dict:
         return {"model_calls": 0}
     starts = [datetime.fromisoformat(c["started_at"]) for c in calls]
     ends = [s + timedelta(milliseconds=c["elapsed_ms"]) for s, c in zip(starts, calls)]
-    costs = [estimate_cost(c["model"], c["input_tokens"], c["cached_input_tokens"], c["output_tokens"]) for c in calls]
     tokens = {k: sum(c[k] or 0 for c in calls)
               for k in ("input_tokens", "cached_input_tokens", "output_tokens", "reasoning_tokens")}
     return {
@@ -37,7 +36,11 @@ def _extraction(db: sqlite3.Connection, version: str) -> dict:
         "wall_clock_s": round((max(ends) - min(starts)).total_seconds(), 1),
         "summed_call_s": round(sum(c["elapsed_ms"] for c in calls) / 1000, 1),
         "tokens": tokens,
-        "estimated_cost_usd": None if None in costs else round(sum(costs), 4),
+        "estimated_cost_usd": (
+            None if (cost := estimate_cost(
+                calls[0]["model"], tokens["input_tokens"], tokens["cached_input_tokens"], tokens["output_tokens"]
+            )) is None else round(cost, 4)
+        ),
     }
 
 

@@ -77,14 +77,16 @@ class _Writer:
             "SELECT id FROM encounters WHERE patient_id = ? AND external_id = ?", (self.patient_id, external_id)
         ).fetchone()[0]
 
-    def assessment(self, instrument: str, completed_on: date) -> int:
+    def assessment(self, instrument: str, completed_on: date, form_id: str | None = None) -> int:
+        # Same source form id merges (including imports). No form id: do not merge across documents.
+        form_key = form_id if form_id else f"anon:{self.extraction_id}"
         self.db.execute(
-            "INSERT OR IGNORE INTO assessments(patient_id, instrument, completed_on) VALUES (?, ?, ?)",
-            (self.patient_id, instrument, completed_on.isoformat()),
+            "INSERT OR IGNORE INTO assessments(patient_id, instrument, completed_on, form_key) VALUES (?, ?, ?, ?)",
+            (self.patient_id, instrument, completed_on.isoformat(), form_key),
         )
         return self.db.execute(
-            "SELECT id FROM assessments WHERE patient_id = ? AND instrument = ? AND completed_on = ?",
-            (self.patient_id, instrument, completed_on.isoformat()),
+            "SELECT id FROM assessments WHERE patient_id = ? AND instrument = ? AND completed_on = ? AND form_key = ?",
+            (self.patient_id, instrument, completed_on.isoformat(), form_key),
         ).fetchone()[0]
 
     def assertion(self, claim: Claim, kind: str, source_status: str, authored_on: date, **values) -> None:
@@ -176,7 +178,8 @@ def persist_extraction(
     for a in envelope.assessments:
         w.assertion(
             a, "assessment_score", a.source_status, a.authored_on,
-            assessment_id=w.assessment(a.instrument, a.completed_on), score=a.score, external_ref=a.form_id,
+            assessment_id=w.assessment(a.instrument, a.completed_on, a.form_id),
+            score=a.score, external_ref=a.form_id,
         )
 
     for o in envelope.observations:
@@ -200,7 +203,7 @@ def persist_extraction(
     return extraction_id
 
 
-def reviewed_envelope(patient: Patient, claims: dict) -> ExtractionEnvelope:
+def fixture_envelope(patient: Patient, claims: dict) -> ExtractionEnvelope:
     return ExtractionEnvelope.model_validate({
         "patient": patient.model_dump(mode="json"),
         "encounters": [], "corrections": [], "assessments": [], "observations": [], "plans": [],
@@ -208,23 +211,23 @@ def reviewed_envelope(patient: Patient, claims: dict) -> ExtractionEnvelope:
     })
 
 
-def persist_reviewed(
+def persist_fixtures(
     db: sqlite3.Connection,
     documents_dir: Path,
-    reviewed: dict[str, dict],
+    fixtures: dict[str, dict],
     *,
     patient: Patient,
     version: str,
-    producer: str = "human-review",
+    producer: str = "fixture",
 ) -> tuple[int, int]:
-    """Persist independently reviewed claims through the same writer as live extraction."""
+    """Persist hand-authored fixture claims through the same writer as live extraction."""
     persisted = skipped = 0
-    for name, claims in reviewed.items():
+    for name, claims in fixtures.items():
         locator = (Path(documents_dir) / name).as_posix()
         row = db.execute("SELECT document_id FROM document_sources WHERE locator = ?", (locator,)).fetchone()
         if row is None:
             raise LookupError(f"{name} is not ingested (expected locator {locator})")
-        envelope = reviewed_envelope(patient, claims)
+        envelope = fixture_envelope(patient, claims)
         try:
             with db:
                 persist_extraction(db, row[0], envelope, version=version, producer=producer)

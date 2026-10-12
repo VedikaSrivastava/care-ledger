@@ -81,7 +81,8 @@ CREATE TABLE IF NOT EXISTS assessments(
     patient_id INTEGER NOT NULL REFERENCES patients(id),
     instrument TEXT NOT NULL,
     completed_on TEXT NOT NULL,
-    UNIQUE (patient_id, instrument, completed_on),
+    form_key TEXT NOT NULL DEFAULT '',
+    UNIQUE (patient_id, instrument, completed_on, form_key),
     UNIQUE (id, patient_id)
 );
 

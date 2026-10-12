@@ -84,17 +84,6 @@ def _alternative(presence: tuple[Span, ...], breaks: tuple[Span, ...], assertion
     return Alternative(present - removed, f"{derivation} = {present - removed} min", tuple(sorted(assertion_ids)))
 
 
-def _accounts(claims: list[EncounterClaim], span_of) -> dict[tuple[Span, ...], list[int]]:
-    """Group interval claims into one account per source document; identical accounts merge."""
-    by_document: dict[int, list[EncounterClaim]] = defaultdict(list)
-    for c in claims:
-        by_document[c.extraction_id].append(c)
-    accounts: dict[tuple[Span, ...], list[int]] = defaultdict(list)
-    for group in by_document.values():
-        accounts[_merge(span_of(c) for c in group)].extend(c.id for c in group)
-    return accounts
-
-
 def _agreement(values: dict[int, object]) -> tuple[str, object]:
     distinct = set(values.values())
     if not distinct:
@@ -104,12 +93,139 @@ def _agreement(values: dict[int, object]) -> tuple[str, object]:
     return "disputed", None
 
 
+def _duration_alternatives(
+    presence: list[EncounterClaim],
+    breaks: list[EncounterClaim],
+    effective: dict[int, Span],
+) -> list[Alternative]:
+    """One scenario per source document.
+
+    A document's own presence and breaks stay together. Presence-only documents
+    may use another document's breaks (complementary evidence). Presence+break
+    documents are never crossed with a different presence account.
+    """
+    by_presence: dict[int, list[EncounterClaim]] = defaultdict(list)
+    by_break: dict[int, list[EncounterClaim]] = defaultdict(list)
+    for p in presence:
+        by_presence[p.extraction_id].append(p)
+    for b in breaks:
+        by_break[b.extraction_id].append(b)
+
+    break_accounts = {
+        doc_id: (
+            _merge((c.starts_at, c.ends_at) for c in claims),
+            [c.id for c in claims],
+        )
+        for doc_id, claims in by_break.items()
+    }
+    scenarios = []
+    for doc_id, p_claims in by_presence.items():
+        p_spans = _merge(effective[c.id] for c in p_claims)
+        p_ids = [c.id for c in p_claims]
+        if doc_id in break_accounts:
+            b_spans, b_ids = break_accounts[doc_id]
+            scenarios.append((p_spans, b_spans, [*p_ids, *b_ids], True, doc_id))
+        else:
+            scenarios.append((p_spans, (), p_ids, False, doc_id))
+
+    if not scenarios:
+        return []
+
+    alternatives: list[Alternative] = []
+    for p_spans, b_spans, ids, has_own_breaks, doc_id in scenarios:
+        if has_own_breaks:
+            alternatives.append(_alternative(p_spans, b_spans, ids))
+            continue
+        others = [(spans, bids) for other_id, (spans, bids) in break_accounts.items() if other_id != doc_id]
+        if not others:
+            alternatives.append(_alternative(p_spans, (), ids))
+        else:
+            for cb_spans, cb_ids in others:
+                alternatives.append(_alternative(p_spans, cb_spans, [*ids, *cb_ids]))
+    return alternatives
+
+
+def _apply_corrections(
+    presence: list[EncounterClaim],
+    corrections: list[EncounterClaim],
+    members: dict[int, tuple[str, str | None]],
+) -> tuple[list[dict[int, Span]], dict[int, list[str]]]:
+    """Apply unambiguous corrections; competing replacements become forked effective maps."""
+    original = {c.id: (c.starts_at, c.ends_at) for c in presence}
+    notes: dict[int, list[str]] = defaultdict(list)
+
+    applicable: list[tuple[EncounterClaim, list[EncounterClaim], int]] = []
+    for corr in corrections:
+        index = 0 if corr.corrected_field == "presence_start" else 1
+        targets = [
+            p for p in presence
+            if original[p.id][index] == corr.replaced_value and p.authored_on <= corr.authored_on
+        ]
+        if not targets:
+            members[corr.id] = ("unmatched_correction", "no claim authored on or before it records the replaced time")
+            continue
+        trial = {}
+        for p in targets:
+            span = list(original[p.id])
+            span[index] = corr.replacement_value
+            trial[p.id] = (span[0], span[1])
+        if any(s >= e for s, e in trial.values()):
+            members[corr.id] = ("rejected", "correction would produce an empty presence interval")
+            continue
+        applicable.append((corr, targets, index))
+
+    groups: dict[tuple[str, str], list[tuple[EncounterClaim, list[EncounterClaim], int]]] = defaultdict(list)
+    for item in applicable:
+        corr = item[0]
+        groups[(corr.corrected_field, corr.replaced_value)].append(item)
+
+    base = dict(original)
+    conflict_options: list[list[tuple[str, list[EncounterClaim], int]]] = []
+    for items in groups.values():
+        replacements = sorted({corr.replacement_value for corr, _, _ in items})
+        targets = items[0][1]
+        index = items[0][2]
+        field = items[0][0].corrected_field
+        replaced = items[0][0].replaced_value
+        if len(replacements) == 1:
+            replacement = replacements[0]
+            for p in targets:
+                span = list(base[p.id])
+                span[index] = replacement
+                base[p.id] = (span[0], span[1])
+                notes[p.id].append(f"{field} {replaced[11:16]} -> {replacement[11:16]}")
+            for corr, _, _ in items:
+                members[corr.id] = ("applied_correction", f"applied to {len(targets)} claim(s)")
+        else:
+            for corr, _, _ in items:
+                members[corr.id] = (
+                    "disputed",
+                    "competing corrections disagree on the replacement; insertion order is not precedence",
+                )
+            conflict_options.append([(rep, targets, index) for rep in replacements])
+
+    if not conflict_options:
+        return [base], notes
+
+    maps = []
+    for combo in product(*conflict_options):
+        effective = dict(base)
+        for replacement, targets, index in combo:
+            for p in targets:
+                span = list(effective[p.id])
+                span[index] = replacement
+                effective[p.id] = (span[0], span[1])
+        maps.append(effective)
+    return maps, notes
+
+
 def resolve(claims: list[EncounterClaim]) -> Resolution:
     """Reconcile every claim made about one encounter.
 
     Draft sources and billing never establish facts. A correction replaces a
     specific recorded time in claims authored on or before the correction;
-    receipt order is irrelevant. Remaining disagreement is kept as alternatives.
+    receipt order is irrelevant. Competing replacements stay disputed.
+    Presence and breaks from the same source stay correlated.
     """
     members: dict[int, tuple[str, str | None]] = {}
     final = [c for c in claims if c.source_status == "final"]
@@ -119,9 +235,20 @@ def resolve(claims: list[EncounterClaim]) -> Resolution:
         elif c.kind == "charge":
             members[c.id] = ("context", "a charge does not establish delivered care")
 
-    details = {c.id: (c.service_date, c.service_type) for c in final if c.kind == "encounter_detail"}
-    detail_status, detail = _agreement(details)
-    for claim_id in details:
+    date_values = {c.id: c.service_date for c in final if c.kind == "encounter_detail"}
+    type_values = {c.id: c.service_type for c in final if c.kind == "encounter_detail"}
+    date_status, service_date = _agreement(date_values)
+    type_status, service_type = _agreement(type_values)
+    if date_status == "established" and type_status == "established":
+        detail_status = "established"
+    elif date_status == "unknown" and type_status == "unknown":
+        detail_status = "unknown"
+    else:
+        detail_status = "disputed"
+    # Retain each established field even when the other is disputed (CHECK allows one null when not established).
+    stored_date = service_date if date_status == "established" else None
+    stored_type = service_type if type_status == "established" else None
+    for claim_id in date_values:
         members[claim_id] = ("accepted" if detail_status == "established" else "disputed", None)
 
     explicit = {c.id: c.attendance for c in final if c.kind == "attendance"}
@@ -132,61 +259,49 @@ def resolve(claims: list[EncounterClaim]) -> Resolution:
 
     presence = [c for c in final if c.kind == "presence"]
     breaks = [c for c in final if c.kind == "break"]
-    corrections = sorted((c for c in final if c.kind == "correction"), key=lambda c: (c.authored_on, c.id))
+    corrections = [c for c in final if c.kind == "correction"]
 
-    effective: dict[int, Span] = {c.id: (c.starts_at, c.ends_at) for c in presence}
-    correction_notes: dict[int, list[str]] = defaultdict(list)
-    for corr in corrections:
-        index = 0 if corr.corrected_field == "presence_start" else 1
-        targets = [
-            p for p in presence
-            if effective[p.id][index] == corr.replaced_value and p.authored_on <= corr.authored_on
-        ]
-        updated = {}
-        for p in targets:
-            span = list(effective[p.id])
-            span[index] = corr.replacement_value
-            updated[p.id] = (span[0], span[1])
-        if any(s >= e for s, e in updated.values()):
-            members[corr.id] = ("rejected", "correction would produce an empty presence interval")
-            continue
-        if not targets:
-            members[corr.id] = ("unmatched_correction", "no claim authored on or before it records the replaced time")
-            continue
-        effective.update(updated)
-        members[corr.id] = ("applied_correction", f"applied to {len(targets)} claim(s)")
-        for p in targets:
-            correction_notes[p.id].append(
-                f"{corr.corrected_field} {corr.replaced_value[11:16]} -> {corr.replacement_value[11:16]}"
-            )
-
-    presence_accounts = _accounts(presence, lambda c: effective[c.id])
-    break_accounts = _accounts(breaks, lambda c: (c.starts_at, c.ends_at))
-
-    for accounts in (presence_accounts, break_accounts):
-        role = "disputed" if len(accounts) > 1 else "accepted"
-        for ids in accounts.values():
-            for claim_id in ids:
-                members[claim_id] = ("corrected" if role == "accepted" and claim_id in correction_notes else role,
-                                     "; ".join(correction_notes.get(claim_id, [])) or None)
+    effective_maps, correction_notes = _apply_corrections(presence, corrections, members)
 
     alternatives: list[Alternative] = []
     if attendance_status == "established" and attendance != "attended":
         duration_status = "not_applicable"
-    elif not presence_accounts:
+    elif not presence:
         duration_status = "unknown"
     else:
-        for (p_spans, p_ids), (b_spans, b_ids) in product(presence_accounts.items(), break_accounts.items() or [((), [])]):
-            alternatives.append(_alternative(p_spans, b_spans, [*p_ids, *b_ids]))
-        if len({a.minutes for a in alternatives}) > 1:
+        seen: set[tuple[int, str]] = set()
+        for effective in effective_maps:
+            for alt in _duration_alternatives(presence, breaks, effective):
+                key = (alt.minutes, alt.derivation)
+                if key not in seen:
+                    seen.add(key)
+                    alternatives.append(alt)
+        if len({a.minutes for a in alternatives}) > 1 or len(effective_maps) > 1:
             duration_status = "disputed"
-        elif any(claim_id in correction_notes for ids in presence_accounts.values() for claim_id in ids):
+        elif correction_notes:
             duration_status = "corrected"
         else:
             duration_status = "established"
 
-    service_date, service_type = detail if detail else (None, None)
-    return Resolution(detail_status, service_date, service_type, attendance_status, attendance,
+    if presence:
+        if len(effective_maps) == 1:
+            distinct = {effective_maps[0][p.id] for p in presence}
+            for p in presence:
+                note = "; ".join(correction_notes.get(p.id, [])) or None
+                if len(distinct) > 1:
+                    members[p.id] = ("disputed", note)
+                elif p.id in correction_notes:
+                    members[p.id] = ("corrected", note)
+                else:
+                    members[p.id] = ("accepted", note)
+        else:
+            for p in presence:
+                note = "; ".join(correction_notes.get(p.id, [])) or None
+                members[p.id] = ("disputed", note)
+    for b in breaks:
+        members.setdefault(b.id, ("accepted", None))
+
+    return Resolution(detail_status, stored_date, stored_type, attendance_status, attendance,
                       duration_status, alternatives, members)
 
 

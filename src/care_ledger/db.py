@@ -15,8 +15,36 @@ def open_db(path: str | Path) -> sqlite3.Connection:
     db.execute("PRAGMA journal_mode = WAL")
     db.execute("PRAGMA busy_timeout = 5000")
     db.executescript(SCHEMA.read_text(encoding="utf-8"))
+    _migrate_assessments(db)
     _make_append_only(db)
     return db
+
+
+def _migrate_assessments(db: sqlite3.Connection) -> None:
+    """Add form_key identity for databases created before form-scoped assessments."""
+    columns = {row[1] for row in db.execute("PRAGMA table_info(assessments)")}
+    if not columns or "form_key" in columns:
+        return
+    db.execute("PRAGMA foreign_keys=OFF")
+    db.executescript(
+        """
+        ALTER TABLE assessments RENAME TO assessments_legacy;
+        CREATE TABLE assessments(
+            id INTEGER PRIMARY KEY,
+            patient_id INTEGER NOT NULL REFERENCES patients(id),
+            instrument TEXT NOT NULL,
+            completed_on TEXT NOT NULL,
+            form_key TEXT NOT NULL DEFAULT '',
+            UNIQUE (patient_id, instrument, completed_on, form_key),
+            UNIQUE (id, patient_id)
+        );
+        INSERT INTO assessments(id, patient_id, instrument, completed_on, form_key)
+        SELECT id, patient_id, instrument, completed_on, '' FROM assessments_legacy;
+        DROP TABLE assessments_legacy;
+        """
+    )
+    db.execute("PRAGMA foreign_keys=ON")
+    db.commit()
 
 
 def _make_append_only(db: sqlite3.Connection) -> None:

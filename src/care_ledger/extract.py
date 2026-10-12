@@ -51,6 +51,9 @@ faithful paraphrase. Link encounter_id when the observation was made during an e
 Plans: treatment-plan participation requirements with effective dates, weekly minimum therapy days and \
 minutes, and the service types that count toward them.
 
+Times: each start or end is a single local clock time as HH:MM (example: 10:45). Do not write a range, \
+Z, or UTC offset in a time field.
+
 Use empty lists when the document contains no claims of a type.
 """
 

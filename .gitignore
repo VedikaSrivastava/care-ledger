@@ -7,7 +7,7 @@ __pycache__/
 pytest-cache-files-*/
 artifacts/*.sqlite
 artifacts/*.sqlite-*
-!artifacts/reviewed.sqlite
+!artifacts/fixture.sqlite
 dist/
 build/
 *.egg-info/

@@ -5,23 +5,22 @@ from datetime import date
 from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
 
 from care_ledger.db import ingest_directory, open_db
 from care_ledger.models import Interval, Patient
-from care_ledger.persist import AlreadyExtracted, EvidenceError, persist_extraction, persist_reviewed, reviewed_envelope
+from care_ledger.persist import AlreadyExtracted, EvidenceError, persist_extraction, persist_fixtures, fixture_envelope
 from care_ledger.queries import StaleAbstraction, run_query
 from care_ledger.reconcile import EncounterClaim, resolve, reconcile
 
 DOCUMENTS = Path(__file__).parents[1] / "documents"
-GOLD = json.loads((Path(__file__).parent / "fixtures" / "reviewed_extractions.json").read_text(encoding="utf-8"))
+GOLD = json.loads((Path(__file__).parent / "fixtures" / "fixture_extractions.json").read_text(encoding="utf-8"))
 PATIENT = Patient(mrn="HG-M042", name="Rowan Mercer", birth_date=date(1991, 4, 12))
-VERSION = "reviewed"
+VERSION = "fixture"
 WINDOW = {"patient": "HG-M042", "start": date(2026, 1, 5), "end": date(2026, 1, 30)}
 
 
 def envelope(claims: dict):
-    return reviewed_envelope(PATIENT, claims)
+    return fixture_envelope(PATIENT, claims)
 
 
 def document_id(db, name: str) -> int:
@@ -30,8 +29,8 @@ def document_id(db, name: str) -> int:
     ).fetchone()[0]
 
 
-def load_reviewed(db, names=None) -> int:
-    persist_reviewed(
+def load_fixtures(db, names=None) -> int:
+    persist_fixtures(
         db, DOCUMENTS, {n: GOLD[n] for n in (names or GOLD)},
         patient=PATIENT, version=VERSION,
     )
@@ -41,7 +40,7 @@ def load_reviewed(db, names=None) -> int:
 def fresh_db(path: Path, names=None):
     db = open_db(path)
     ingest_directory(db, DOCUMENTS)
-    load_reviewed(db, names)
+    load_fixtures(db, names)
     return db
 
 
@@ -64,9 +63,9 @@ def at(clock: str) -> str:
     return f"2026-01-19T{clock}"
 
 
-# --- end-to-end on the reviewed extraction ----------------------------------
+# --- end-to-end on the fixture extraction -----------------------------------
 
-def test_reviewed_extraction_covers_every_document():
+def test_fixture_extraction_covers_every_document():
     assert set(GOLD) == {p.name for p in DOCUMENTS.glob("*.txt")}
 
 
@@ -174,16 +173,16 @@ def test_new_extraction_makes_abstraction_stale(db, tmp_path):
     ingest_directory(db, incoming)
     new_id = db.execute("SELECT document_id FROM document_sources WHERE locator LIKE '%/new.txt'").fetchone()[0]
     with db:
-        persist_extraction(db, new_id, envelope({}), version=VERSION, producer="human-review")
+        persist_extraction(db, new_id, envelope({}), version=VERSION, producer="fixture")
     with pytest.raises(StaleAbstraction):
         query(db, "minutes", **WINDOW)
     reconcile(db, VERSION)
     assert query(db, "minutes", **WINDOW)["minutes"] == {"min": 585, "max": 595}
 
 
-def test_reload_reviewed_does_not_duplicate_extractions(db):
+def test_reload_fixtures_does_not_duplicate_extractions(db):
     before = db.execute("SELECT count(*) FROM extractions").fetchone()[0]
-    persist_reviewed(db, DOCUMENTS, GOLD, patient=PATIENT, version=VERSION)
+    persist_fixtures(db, DOCUMENTS, GOLD, patient=PATIENT, version=VERSION)
     assert db.execute("SELECT count(*) FROM extractions").fetchone()[0] == before
     assert query(db, "minutes", **WINDOW)["minutes"] == {"min": 585, "max": 595}
 
@@ -192,12 +191,13 @@ def test_second_persist_of_same_document_is_rejected(db):
     doc = document_id(db, "BH-D105_individual_2026-01-19.txt")
     with pytest.raises(AlreadyExtracted):
         with db:
-            persist_extraction(db, doc, envelope({}), version=VERSION, producer="human-review")
+            persist_extraction(db, doc, envelope({}), version=VERSION, producer="fixture")
 
 
-def test_timezone_offset_is_not_a_clock_time():
-    with pytest.raises(ValidationError, match="timezone"):
-        Interval(start="10:45:00-11:00", end="11:00", evidence_quotes=["quoted"])
+def test_clock_times_keep_the_local_hhmm():
+    interval = Interval(start="10:45:00-11:00", end="11:00:00.000000000Z", evidence_quotes=["quoted"])
+    assert (interval.start.hour, interval.start.minute) == (10, 45)
+    assert (interval.end.hour, interval.end.minute) == (11, 0)
 
 
 def test_unlocatable_evidence_is_rejected_atomically(db):
@@ -283,3 +283,107 @@ def test_correction_without_a_matching_claim_is_retained_unapplied():
     ])
     assert r.members[2][0] == "unmatched_correction"
     assert (r.duration_status, [a.minutes for a in r.alternatives]) == ("established", [60])
+
+
+def test_presence_and_breaks_stay_correlated_by_source():
+    r = resolve([
+        claim(1, "presence", 1, starts_at=at("10:00"), ends_at=at("11:00")),
+        claim(2, "break", 1, starts_at=at("10:45"), ends_at=at("10:55")),
+        claim(3, "presence", 2, starts_at=at("10:00"), ends_at=at("11:10")),
+        claim(4, "break", 2, starts_at=at("10:40"), ends_at=at("11:00")),
+    ])
+    assert sorted(a.minutes for a in r.alternatives) == [50, 50]
+    assert r.duration_status == "established"
+
+
+def test_presence_only_roster_uses_other_documents_breaks():
+    """Activity note may record breaks (and optional split presence); roster has continuous presence."""
+    r = resolve([
+        claim(1, "presence", 1, starts_at=at("10:00"), ends_at=at("11:30")),
+        claim(2, "presence", 2, starts_at=at("10:00"), ends_at=at("10:40")),
+        claim(3, "presence", 2, starts_at=at("10:55"), ends_at=at("11:30")),
+        claim(4, "break", 2, starts_at=at("10:40"), ends_at=at("10:55")),
+    ])
+    assert sorted({a.minutes for a in r.alternatives}) == [75]
+    assert r.duration_status == "established"
+
+
+def test_competing_corrections_are_disputed_not_order_dependent():
+    first = resolve([
+        claim(1, "presence", 1, starts_at=at("10:00"), ends_at=at("11:30")),
+        claim(2, "correction", 2, "2026-01-20", corrected_field="presence_end",
+              replaced_value=at("11:30"), replacement_value=at("11:15")),
+        claim(3, "correction", 3, "2026-01-20", corrected_field="presence_end",
+              replaced_value=at("11:30"), replacement_value=at("11:20")),
+    ])
+    second = resolve([
+        claim(1, "presence", 1, starts_at=at("10:00"), ends_at=at("11:30")),
+        claim(2, "correction", 2, "2026-01-20", corrected_field="presence_end",
+              replaced_value=at("11:30"), replacement_value=at("11:20")),
+        claim(3, "correction", 3, "2026-01-20", corrected_field="presence_end",
+              replaced_value=at("11:30"), replacement_value=at("11:15")),
+    ])
+    assert first.duration_status == second.duration_status == "disputed"
+    assert sorted(a.minutes for a in first.alternatives) == sorted(a.minutes for a in second.alternatives) == [75, 80]
+    assert {first.members[2][0], first.members[3][0]} == {"disputed"}
+
+
+def test_disputed_service_type_keeps_the_date_in_weekly_totals(db):
+    assert query(db, "minutes", **WINDOW)["weeks"][-1]["minutes"] == {"min": 145, "max": 155}
+    encounter_id = db.execute("SELECT id FROM encounters WHERE external_id='HG-E115'").fetchone()[0]
+    patient_id = db.execute("SELECT id FROM patients").fetchone()[0]
+    extraction_id = db.execute(
+        "SELECT a.extraction_id FROM assertions a WHERE a.encounter_id=? AND a.kind='encounter_detail' LIMIT 1",
+        (encounter_id,),
+    ).fetchone()[0]
+    db.execute(
+        "INSERT INTO assertions(extraction_id, patient_id, encounter_id, kind, source_status, authored_on, "
+        "service_date, service_type) VALUES (?, ?, ?, 'encounter_detail', 'final', "
+        "'2026-01-26', '2026-01-26', 'group_therapy')",
+        (extraction_id, patient_id, encounter_id),
+    )
+    db.commit()
+    reconcile(db, VERSION)
+    after = query(db, "compliance", **WINDOW)["patients"][0]["weeks"][-1]
+    assert after["status"] == "cannot_determine"
+    assert after["minutes"] == {"min": 105, "max": 155}
+    assert after["therapy_days"] == {"min": 2, "max": 3}
+    assert "HG-E115" in after["depends_on"]
+
+
+def test_distinct_form_ids_are_distinct_assessments(db, tmp_path):
+    quote = "PHQ-9 form HG-Q999 completed 2026-01-16 with total score 12."
+    incoming = tmp_path / "second_form.txt"
+    incoming.write_text(f"Harbor Grove measure export\n{quote}\n", encoding="utf-8")
+    ingest_directory(db, tmp_path)
+    doc_id = db.execute(
+        "SELECT document_id FROM document_sources WHERE locator = ?", (incoming.as_posix(),)
+    ).fetchone()[0]
+    with db:
+        persist_extraction(db, doc_id, envelope({
+            "assessments": [{
+                "instrument": "PHQ-9", "completed_on": "2026-01-16", "form_id": "HG-Q999",
+                "score": 12, "source_status": "final", "authored_on": "2026-01-16",
+                "evidence_quotes": [quote],
+            }]
+        }), version=VERSION, producer="test")
+    reconcile(db, VERSION)
+    forms = {(a["completed_on"], a.get("form_id"), a["score"]) for a in query(db, "progress", **WINDOW)["assessments"]}
+    assert ("2026-01-16", "HG-Q116", 14) in forms
+    assert ("2026-01-16", "HG-Q999", 12) in forms
+
+
+def test_partial_corpus_makes_compliance_provisional(tmp_path):
+    db = open_db(tmp_path / "partial.sqlite")
+    ingest_directory(db, DOCUMENTS)
+    # Only the treatment plan and first week of notes.
+    subset = ["signed_treatment_plan_jan05.txt", "intake_and_individual_jan05.txt",
+              "early_group_attendance_roster.txt", "group_facilitator_jan06.txt",
+              "family_primary_jan09.txt", "family_cofacilitator_jan09.txt"]
+    persist_fixtures(db, DOCUMENTS, {n: GOLD[n] for n in subset}, patient=PATIENT, version=VERSION)
+    reconcile(db, VERSION)
+    result = query(db, "compliance", **WINDOW)
+    assert result["abstraction"]["coverage_status"] == "provisional"
+    assert result["coverage_status"] == "provisional"
+    assert all(w["status"] == "cannot_determine" for w in result["patients"][0]["weeks"])
+    db.close()

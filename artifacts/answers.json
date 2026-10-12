@@ -421,9 +421,11 @@
     "unplaced": [],
     "abstraction": {
       "reconciliation_run": 1,
-      "extraction_version": "reviewed",
+      "extraction_version": "fixture",
+      "documents_total": 31,
       "documents_reconciled": 31,
-      "documents_not_extracted": 0
+      "documents_not_extracted": 0,
+      "coverage_status": "complete"
     }
   },
   "DEV-02": {
@@ -443,7 +445,7 @@
     "weeks": [
       {
         "week_of": "2026-01-05",
-        "reviewed": [
+        "period": [
           "2026-01-05",
           "2026-01-11"
         ],
@@ -523,7 +525,7 @@
       },
       {
         "week_of": "2026-01-12",
-        "reviewed": [
+        "period": [
           "2026-01-12",
           "2026-01-18"
         ],
@@ -582,7 +584,7 @@
       },
       {
         "week_of": "2026-01-19",
-        "reviewed": [
+        "period": [
           "2026-01-19",
           "2026-01-25"
         ],
@@ -680,7 +682,7 @@
       },
       {
         "week_of": "2026-01-26",
-        "reviewed": [
+        "period": [
           "2026-01-26",
           "2026-01-30"
         ],
@@ -782,9 +784,11 @@
     ],
     "abstraction": {
       "reconciliation_run": 1,
-      "extraction_version": "reviewed",
+      "extraction_version": "fixture",
+      "documents_total": 31,
       "documents_reconciled": 31,
-      "documents_not_extracted": 0
+      "documents_not_extracted": 0,
+      "coverage_status": "complete"
     }
   },
   "DEV-03": {
@@ -817,7 +821,7 @@
         "weeks": [
           {
             "week_of": "2026-01-05",
-            "reviewed": [
+            "period": [
               "2026-01-05",
               "2026-01-11"
             ],
@@ -844,7 +848,7 @@
           },
           {
             "week_of": "2026-01-12",
-            "reviewed": [
+            "period": [
               "2026-01-12",
               "2026-01-18"
             ],
@@ -871,7 +875,7 @@
           },
           {
             "week_of": "2026-01-19",
-            "reviewed": [
+            "period": [
               "2026-01-19",
               "2026-01-25"
             ],
@@ -898,7 +902,7 @@
           },
           {
             "week_of": "2026-01-26",
-            "reviewed": [
+            "period": [
               "2026-01-26",
               "2026-01-30"
             ],
@@ -945,9 +949,11 @@
     },
     "abstraction": {
       "reconciliation_run": 1,
-      "extraction_version": "reviewed",
+      "extraction_version": "fixture",
+      "documents_total": 31,
       "documents_reconciled": 31,
-      "documents_not_extracted": 0
+      "documents_not_extracted": 0,
+      "coverage_status": "complete"
     }
   },
   "DEV-04": {
@@ -1424,7 +1430,7 @@
               {
                 "assertion": 89,
                 "kind": "presence",
-                "role": "accepted",
+                "role": "disputed",
                 "note": null,
                 "source_status": "final",
                 "authored_on": "2026-01-21",
@@ -1454,7 +1460,7 @@
               {
                 "assertion": 90,
                 "kind": "presence",
-                "role": "accepted",
+                "role": "disputed",
                 "note": null,
                 "source_status": "final",
                 "authored_on": "2026-01-21",
@@ -1488,9 +1494,11 @@
     ],
     "abstraction": {
       "reconciliation_run": 1,
-      "extraction_version": "reviewed",
+      "extraction_version": "fixture",
+      "documents_total": 31,
       "documents_reconciled": 31,
-      "documents_not_extracted": 0
+      "documents_not_extracted": 0,
+      "coverage_status": "complete"
     }
   },
   "DEV-05": {
@@ -1503,6 +1511,7 @@
       {
         "instrument": "PHQ-9",
         "completed_on": "2026-01-05",
+        "form_id": null,
         "sources": [
           {
             "score": 18,
@@ -1527,6 +1536,7 @@
       {
         "instrument": "PHQ-9",
         "completed_on": "2026-01-16",
+        "form_id": "HG-Q116",
         "sources": [
           {
             "score": 14,
@@ -1582,6 +1592,7 @@
       {
         "instrument": "PHQ-9",
         "completed_on": "2026-01-30",
+        "form_id": null,
         "sources": [
           {
             "score": 10,
@@ -2177,14 +2188,16 @@
       }
     ],
     "limits": [
-      "Assessments are distinct by instrument and completion date; imported copies are additional sources, not new assessments.",
+      "Assessments with the same source form identifier and completion date are one assessment; imported copies are additional sources. Distinct form identifiers are distinct assessments. Results without a form identifier are not merged across documents.",
       "Scores and observations are reported as documented and attributed to their reporter; remission, recovery, work readiness, and treatment causation are not inferred."
     ],
     "abstraction": {
       "reconciliation_run": 1,
-      "extraction_version": "reviewed",
+      "extraction_version": "fixture",
+      "documents_total": 31,
       "documents_reconciled": 31,
-      "documents_not_extracted": 0
+      "documents_not_extracted": 0,
+      "coverage_status": "complete"
     }
   }
 }

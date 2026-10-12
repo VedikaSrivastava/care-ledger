@@ -1,5 +1,0 @@
-2026-10-11 19:46:35,962 INFO care_ledger ingest documents: added=31 duplicates=0
-2026-10-11 19:46:36,768 INFO care_ledger load-reviewed persisted=31 skipped=0 version=reviewed
-2026-10-11 19:46:36,770 INFO care_ledger reconcile run=1
-2026-10-11 19:46:37,526 INFO care_ledger report written to artifacts\answers.md
-2026-10-11 19:46:38,298 INFO care_ledger benchmark written to artifacts\benchmark.json

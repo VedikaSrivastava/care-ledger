@@ -8,23 +8,22 @@ from typing import Annotated
 
 from pydantic import BaseModel, BeforeValidator, ConfigDict, model_validator
 
-_TZ_SUFFIX = re.compile(r"(Z|[+-]\d{2}:?\d{2})$")
+_CLOCK = re.compile(
+    r"^(\d{1,2}:\d{2})(?::(\d{2})(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?$",
+    re.IGNORECASE,
+)
 
 
 def _local_clock(value: object) -> time:
-    """Parse a wall-clock time. Timezone offsets are rejected so '10:45:00-11:00' cannot be read as 10:45 UTC-11."""
+    """Parse a local HH:MM clock. Fractional seconds, Z, and offsets are ignored."""
     if isinstance(value, time):
-        if value.tzinfo is not None:
-            raise ValueError("clock times are local and timezone-naive")
-        return value.replace(microsecond=0)
+        return value.replace(tzinfo=None, microsecond=0)
     if isinstance(value, str):
-        text = value.strip()
-        if _TZ_SUFFIX.search(text):
-            raise ValueError(f"clock time must not include a timezone: {value!r}")
-        parsed = time.fromisoformat(text)
-        if parsed.tzinfo is not None:
-            raise ValueError(f"clock time must not include a timezone: {value!r}")
-        return parsed.replace(microsecond=0)
+        match = _CLOCK.match(value.strip())
+        if not match:
+            raise ValueError(f"expected HH:MM local clock time, got {value!r}")
+        clock = match.group(1) if match.group(2) is None else f"{match.group(1)}:{match.group(2)}"
+        return time.fromisoformat(clock)
     raise ValueError(f"expected a clock time, got {type(value).__name__}")
 
 

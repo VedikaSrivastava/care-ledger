@@ -1,78 +1,111 @@
 # Care Ledger
 
-A Python/SQLite abstraction for one outpatient episode. Documents become evidence-backed claims; claims are reconciled into encounters; answers are calculated from those resolutions. The LLM extracts claims. Python counts sessions, subtracts breaks, applies corrections, and classifies weekly goals.
+Clinical abstraction prototype for the Backbone take-home. Documents are ingested into SQLite, extracted into typed evidence-backed claims, reconciled into encounters, and answered with deterministic Python calculations.
 
-There is one write path. Reviewed JSON and live model output both go through `persist_extraction` → `reconcile` → `queries`.
+Pipeline: `ingest` → claim source → `reconcile` → `query` / `report`.
+
+### Why two claim sources
+
+The model does the clinical reading. Reconcile and calculate are ordinary code on whatever claims were saved. Those are separate jobs, so the claim source is swappable:
+
+| Source | CLI | Role |
+|---|---|---|
+| Fixture claims | `--version fixture` + `load-fixtures` | Hand-authored evidence-backed claims in `tests/fixtures/fixture_extractions.json`. Offline, free, deterministic for tests and the default report. |
+| Live extraction | `--version llm-v1` + `extract` | Same claim schema, filled by the model from each document. Required for the live path: cost, latency, and a check that extraction reaches the same clinical totals. |
+
+Answers are never hardcoded into the calculators; both paths write claims into the same tables and share reconcile/query.
 
 ## Setup
 
-Python 3.11+. Copy `.env.example` to `.env` and set `OPENAI_API_KEY` only if you want live extraction.
+Python 3.11+.
 
 ```powershell
 py -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
+Copy-Item .env.example .env
+# Set OPENAI_API_KEY for live extraction.
 ./scripts/run_pipeline.ps1
 ```
 
-The script builds `artifacts/reviewed.sqlite` from the 31 local records and `tests/fixtures/reviewed_extractions.json`, writes `artifacts/answers.md`, measures query latency, and runs `pytest`.
+`run_pipeline.ps1` rebuilds the fixture abstraction, writes `artifacts/answers.md`, measures query latency, and runs tests. It does not delete the live database.
 
-Manual equivalent:
-
-```powershell
-care-ledger --db artifacts/reviewed.sqlite --version reviewed ingest documents
-care-ledger --db artifacts/reviewed.sqlite --version reviewed load-reviewed
-care-ledger --db artifacts/reviewed.sqlite --version reviewed report
-care-ledger --db artifacts/reviewed.sqlite --version reviewed query attendance --patient HG-M042 --start 2026-01-05 --end 2026-01-30
-```
-
-Live extraction of documents not yet extracted for a version:
+### Process documents and answer questions
 
 ```powershell
-care-ledger --db artifacts/care_ledger.sqlite ingest documents
+# Fixture claims (offline, reproducible)
+care-ledger --db artifacts/fixture.sqlite --version fixture ingest documents
+care-ledger --db artifacts/fixture.sqlite --version fixture load-fixtures
+care-ledger --db artifacts/fixture.sqlite --version fixture report
+
+# Live model extraction
+care-ledger --db artifacts/care_ledger.sqlite --version llm-v1 ingest documents
 care-ledger --db artifacts/care_ledger.sqlite --version llm-v1 extract
+
+# New questions reuse the saved abstraction after restart
+care-ledger --db artifacts/fixture.sqlite --version fixture query attendance --patient HG-M042 --start 2026-01-05 --end 2026-01-30
+care-ledger --db artifacts/fixture.sqlite --version fixture query compliance --patient HG-M042 --start 2026-01-05 --end 2026-01-30
 ```
 
-`extract` records every model call, rejects quotes that are missing or ambiguous, retries evidence failures once, and reconciles whatever persisted. A second extract of the same `(document, version)` is a no-op. Byte-identical files reuse the stored document.
+Byte-identical files are deduplicated by content hash. Successful extractions are cached per `(document, extraction_version)`. Evidence quotes must occur verbatim and uniquely in the source document.
 
-## What the abstraction does
+## Approach
 
-Eligible therapy is patient-present individual, group, or family psychotherapy. Minutes are presence intervals minus overlapping breaks. Several notes about one encounter stay one encounter.
+Eligible therapy is patient-present individual, group, or family psychotherapy. Session minutes are presence intervals minus overlapping nontherapeutic breaks. Multiple documents about one encounter contribute claims to one encounter record.
 
-Observed cases:
+Reconciliation rules that matter for this corpus:
 
-- January 19 group: explicit departure correction 11:30 → 11:15; the later resent roster repeats the original and does not undo the correction; the activity note supplies the 15-minute break → 60 minutes.
-- January 19 individual after group is a second encounter (30 minutes).
-- January 21 telehealth: two connection intervals, one encounter; the disconnected 10 minutes do not count → 45 minutes.
-- January 26: two full-contact intervals (50 vs 40) remain alternatives. Totals keep both. They are not averaged and fields are not mixed across accounts.
-- January 27 draft attendance text and a posted charge do not establish care; the signed no-show does.
-- January 30 family: count the 30 minutes Rowan was present, not the therapist's full 45.
-- January 16 PHQ-9 imported on January 26 is one assessment.
+- Explicit corrections replace a specific arrival or departure time on claims authored on or before the correction. A later resent copy of the original roster does not undo the correction.
+- Competing replacements for the same field remain disputed; document order is not precedence.
+- Presence and break intervals from the same source stay correlated; accounts are not crossed arbitrarily.
+- Service date and service type are resolved independently, so a type disagreement does not drop a dated encounter from weekly totals.
+- Draft notes, charges, authorizations, medication-only visits, patient-absent collateral, care coordination, cancellations, and no-shows remain in the ledger with exclusion reasons.
+- Assessments with the same source form identifier share one assessment; imports are additional sources. Results without a form identifier are not merged across documents.
+- If any ingested document has not been extracted, answers are marked provisional and definitive plan-compliance labels are withheld.
 
-Drafts, charges, authorizations, medication-only visits, partner-only collateral, care coordination, cancellations, and no-shows stay in the ledger with an exclusion reason.
-
-## Results (reviewed extraction)
-
-12 eligible encounters on 11 days: individual 5 (210–220 min), group 5 (300 min), family 2 (75 min), total 585–595 min. Monday–Sunday weeks from January 5: 140, 120, 180, and 145–155 minutes on 3, 2, 3, and 3 therapy days. Against the signed goal (≥3 days and ≥150 minutes), the weeks are not met, not met, met, and cannot determine. The last week is a partial week through January 30; the duration dispute on HG-E115 is the only reason it is indeterminate. The first two weeks are consecutive below-goal weeks regardless.
-
-PHQ-9: 18 (Jan 5), 14 (Jan 16), 10 (Jan 30). See [answers.md](artifacts/answers.md).
+Unknown is stored as null, not zero. Numerical answers are computed in code from saved resolutions.
 
 ## Design decision tested
 
-An encounter is one event with many claims, not one row per note. That is what keeps co-facilitator notes, reconnects, and retransmitted rosters from inflating counts while still leaving Jan 26 unresolved. Finalized assertions and published resolutions are append-only (SQLite triggers). Corrections replace one recorded clock time on claims authored on or before the correction; receipt order is not precedence. Unknown is null, not zero.
+Represent each service as one encounter with many claims, not one row per note.
 
-## Limitation
+That prevents co-facilitator notes, telehealth reconnects, and retransmitted rosters from inflating session counts, while still preserving the January 26 duration disagreement as correlated alternatives (40 vs 50 minutes) instead of averaging or silently picking a winner.
 
-The brief mentions multiple patients, inpatient care, and mid-episode plan amendments. The supplied records are one outpatient patient and one effective plan. The schema keeps patient identity and effective-dated requirements; cohort analysis and prorating a midweek amendment are not demonstrated because the documents do not support them.
+## Results
 
-## Scale
+Full answers with sources: [artifacts/answers.md](artifacts/answers.md).
 
-Measured on this corpus after `load-reviewed` (31 documents, 50,137 bytes; saved database 348 KiB): reconciliation 0.73 ms; question latency median 0.20–0.36 ms (30 warm runs). No model call occurred on the reviewed path, so usage and cost are unknown, not $0. Live extraction records tokens and estimated cost on `model_calls`.
+For Rowan Mercer (HG-M042), January 5–30:
 
-At 500k–1M documents the first cost is per-document model extraction, then SQLite's single writer. I would queue work by content hash, cache `(sha256, extraction_version)`, and move write-heavy tables to PostgreSQL. Those last sentences are estimates, not measurements from this corpus.
+- 12 eligible therapy encounters on 11 distinct days
+- Individual 5 (210–220 min), group 5 (300 min), family 2 (75 min)
+- Total 585–595 minutes (9.75–9.92 hours)
+- Weekly minutes (Monday–Sunday): 140, 120, 180, 145–155
+- Plan goal (≥3 therapy days and ≥150 minutes): not met, not met, met, cannot determine
+- Two consecutive below-goal weeks: January 5 and January 12
+- PHQ-9: 18 (Jan 5), 14 (Jan 16), 10 (Jan 30); the January 26 import is not a fourth assessment
 
-Pricing snapshot 2026-10-11: GPT-5.4 mini $0.75 / $0.075 / $4.50 per million input / cached input / output tokens. Cached input is a subset of input; reasoning tokens are a subset of output.
+Hard cases handled: January 19 correction and resent roster; January 21 disconnect/reconnect; January 26 unresolved duration; January 27 draft/charge vs signed no-show; January 30 partial family attendance.
+
+## Observed limitation
+
+The assignment overview describes multiple patients, inpatient care, and treatment-plan amendments. The supplied records cover one outpatient patient and one effective plan. The schema retains patient identity and effective-dated requirements, but cohort analysis and before/after plan-change comparison are not demonstrated on this dataset. Next step: add a parameterized plan-change query and synthetic multi-patient fixtures, without inventing a clinical prorating rule for midweek amendments.
+
+## Performance
+
+Measured on the supplied 31 documents (50,137 bytes):
+
+| Claim source | Processing | Abstraction size | Query latency (median, 30 warm runs) | Model usage |
+|---|---|---|---|---|
+| Fixture (`load-fixtures`) | reconcile ~0.7 ms after local persist | 348 KiB | 0.20–0.36 ms | none |
+| Live (`gpt-5.4-mini`, reasoning `medium`) | ~193 s wall clock | ~444 KiB | 0.24–0.44 ms | 62 calls; 73,771 input (20,992 cached), 57,530 output (39,634 reasoning); ~$0.30 |
+
+Live extraction matched the fixture clinical totals. Details: [artifacts/benchmark.json](artifacts/benchmark.json), [artifacts/live_benchmark.json](artifacts/live_benchmark.json), [artifacts/execution.log](artifacts/execution.log).
+
+Pricing snapshot 2026-10-11 ([OpenAI model page](https://developers.openai.com/api/docs/models/gpt-5.4-mini)): $0.75 / $0.075 / $4.50 per million input / cached input / output tokens. Cached input is a subset of input; reasoning tokens are a subset of output.
+
+At 500k–1M documents, the first bottleneck is per-document model extraction (cost and latency) in `extract.py`, then SQLite’s single-writer ingest path. Planned changes: queue by content hash, cache `(sha256, extraction_version)`, and move write-heavy tables to PostgreSQL. Those scale remarks are estimates, not measurements from this corpus.
 
 ## Disclosure
 
-All 31 Drive records are in `documents/`. Reviewed claims are independently authored JSON, not answers hardcoded into query logic. AI coding assistance was used to implement the prototype.
+Source records are under `documents/`. Fixture claims are independently authored for offline evaluation; answers are not hardcoded into calculation logic. AI coding assistance (Cursor) was used while building the prototype.

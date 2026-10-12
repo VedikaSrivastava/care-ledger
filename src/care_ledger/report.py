@@ -46,11 +46,11 @@ def render_attendance(a: dict) -> list[str]:
 
 def render_minutes(m: dict) -> list[str]:
     lines = [f"**{_range(m['minutes'])} minutes** ({_range(m['hours'])} hours).", "",
-             "| Week of | Reviewed | Minutes | Encounters |", "|---|---|---|---|"]
+             "| Week of | Period | Minutes | Encounters |", "|---|---|---|---|"]
     for w in m["weeks"]:
         encounters = ", ".join(f"{e['encounter']} ({_range(e['minutes'])})" for e in w["encounters"])
         partial = " (partial)" if w["partial_week"] else ""
-        lines.append(f"| {w['week_of']} | {w['reviewed'][0]} to {w['reviewed'][1]}{partial} | "
+        lines.append(f"| {w['week_of']} | {w['period'][0]} to {w['period'][1]}{partial} | "
                      f"{_range(w['minutes'])} | {encounters} |")
     if m["unresolved"]:
         lines += ["", "**Not settled by the record:**"]
@@ -68,9 +68,9 @@ def render_compliance(c: dict) -> list[str]:
             lines.append(f"**Goal** ({plan['start']} to {plan['end']}): at least {plan['min_days']} therapy days and "
                          f"{plan['min_minutes']} minutes per Monday-Sunday week; counted services: "
                          f"{', '.join(plan['services'])}. Source: " + "; ".join(f"\"{q}\"" for q in plan["evidence"]))
-        lines += ["", "| Week of | Reviewed | Therapy days | Minutes | Result | Depends on |", "|---|---|---|---|---|---|"]
+        lines += ["", "| Week of | Period | Therapy days | Minutes | Result | Depends on |", "|---|---|---|---|---|---|"]
         for w in p["weeks"]:
-            lines.append(f"| {w['week_of']} | {w['reviewed'][0]} to {w['reviewed'][1]} | "
+            lines.append(f"| {w['week_of']} | {w['period'][0]} to {w['period'][1]} | "
                          f"{_range(w.get('therapy_days'))} | {_range(w.get('minutes'))} | {w['status']} | "
                          f"{', '.join(w.get('depends_on', [])) or w.get('reason', '')} |")
         below = p["consecutive_weeks_below_goal"]
