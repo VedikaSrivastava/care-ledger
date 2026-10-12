@@ -500,7 +500,7 @@
     "undetermined": [],
     "unplaced": [],
     "abstraction": {
-      "reconciliation_run": 2,
+      "reconciliation_run": 1,
       "extraction_version": "fixture",
       "documents_total": 31,
       "documents_reconciled": 31,
@@ -915,7 +915,7 @@
       }
     ],
     "abstraction": {
-      "reconciliation_run": 2,
+      "reconciliation_run": 1,
       "extraction_version": "fixture",
       "documents_total": 31,
       "documents_reconciled": 31,
@@ -1080,7 +1080,7 @@
       "depends_on_unresolved": []
     },
     "abstraction": {
-      "reconciliation_run": 2,
+      "reconciliation_run": 1,
       "extraction_version": "fixture",
       "documents_total": 31,
       "documents_reconciled": 31,
@@ -1637,7 +1637,7 @@
       }
     ],
     "abstraction": {
-      "reconciliation_run": 2,
+      "reconciliation_run": 1,
       "extraction_version": "fixture",
       "documents_total": 31,
       "documents_reconciled": 31,
@@ -2336,7 +2336,7 @@
       "Scores and observations are reported as documented and attributed to their reporter; remission, recovery, work readiness, and treatment causation are not inferred."
     ],
     "abstraction": {
-      "reconciliation_run": 2,
+      "reconciliation_run": 1,
       "extraction_version": "fixture",
       "documents_total": 31,
       "documents_reconciled": 31,

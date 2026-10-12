@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import logging
 import sqlite3
 import time
@@ -14,7 +13,7 @@ from pydantic import ValidationError
 
 from .config import Settings
 from .models import ExtractionEnvelope
-from .persist import AlreadyExtracted, EvidenceError, persist_extraction, validate_evidence, evidence_repair_feedback
+from .persist import AlreadyExtracted, EvidenceError, persist_extraction, validate_evidence
 
 log = logging.getLogger(__name__)
 
@@ -25,9 +24,6 @@ Never reconcile with other documents, fill gaps, or infer facts.
 Evidence: every claim lists one or more quotes copied verbatim from the document: exact characters \
 including spacing, dashes, and punctuation, with no added quotation marks, ellipses, or rewording. Each \
 quote must occur exactly once in the document; extend it with neighbouring text when needed to make it unique.
-For repeated schedule or break text, include the adjacent date and encounter heading in the quote.
-This applies separately to nested attendance, presence, break, and charge claims; a parent's quote
-DOES NOT disambiguate a child's quote.
 
 Encounters: emit one section per encounter per document section. Use the source encounter identifier, \
 or the appointment identifier when no encounter identifier exists. source_status is "draft" for draft, \
@@ -90,7 +86,6 @@ class CallResult:
     usage: dict
     output_text: str | None = None
     evidence_rejected: bool = False
-    repair_feedback: str | None = None
 
 
 def _call_model(client: OpenAI, settings: Settings, document_id: int, content: str, messages: list[dict]) -> CallResult:
@@ -121,11 +116,7 @@ def _call_model(client: OpenAI, settings: Settings, document_id: int, content: s
         parsed = ExtractionEnvelope.model_validate_json(response.output_text)
         validate_evidence(content, parsed)
         result.envelope = parsed
-    except EvidenceError as exc:
-        result.error = f"EvidenceError: {exc}"
-        result.evidence_rejected = True
-        result.repair_feedback = json.dumps(evidence_repair_feedback(content, parsed), ensure_ascii=False)
-    except ValidationError as exc:
+    except (EvidenceError, ValidationError) as exc:
         result.error = f"{type(exc).__name__}: {exc}"
         result.evidence_rejected = True
     except Exception as exc:  # recorded per document; the batch reports all failures
@@ -146,9 +137,6 @@ def _extract_document(client: OpenAI, settings: Settings, document_id: int, cont
         messages = [*messages,
                     {"role": "assistant", "content": result.output_text},
                     {"role": "user", "content": f"The extraction failed validation: {result.error}. "
-                                                f"Exact candidate contexts: {result.repair_feedback or 'not applicable'}. "
-                                                "Choose the context matching each claim date and encounter; never pick the first "
-                                                "occurrence just because it is first. Retain all supported claims. "
                                                 "Return the complete extraction with valid HH:MM clocks and every quote copied "
                                                 "verbatim and occurring exactly once in the document."}]
     return attempts

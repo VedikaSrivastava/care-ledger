@@ -1,6 +1,6 @@
 # Answers
 
-Generated from reconciliation run 2 (extraction version `fixture`, 31 documents reconciled, 0 not extracted). Full structured results: `answers.json`.
+Generated from reconciliation run 1 (extraction version `fixture`, 31 documents reconciled, 0 not extracted). Full structured results: `answers.json`.
 
 ## DEV-01
 
