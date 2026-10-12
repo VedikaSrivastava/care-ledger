@@ -37,7 +37,13 @@ python scripts/run_pipeline.py --live
 # Or: ./scripts/run_pipeline.ps1 -Live
 ```
 
-This publishes `artifacts/live/live.sqlite`, `answers.md`, `answers.json`, `benchmark.json`, and `execution.log`. It starts from an empty database with extraction version `llm-v2`. Existing results remain untouched if a command fails. Commit the complete directory after reviewing the live answers. Every model attempt from the final run remains in the database, including repair attempts, because those tokens and costs belong to the run. Old runs are not carried forward.
+This publishes `artifacts/live/live.sqlite`, `answers.md`, `answers.json`, `benchmark.json`, and `execution.log`. A new run starts from an empty database with extraction version `llm-v2`. If a command fails, existing published results remain untouched and the partial database, call usage, and log stay in the ignored `.care-ledger-run-live/` checkpoint. Resume only pending documents with:
+
+```powershell
+python scripts/run_pipeline.py --live --resume
+```
+
+The runner refuses to overwrite an incomplete checkpoint. Successful publication removes the checkpoint after copying the final results. A resume requires the same input documents and model settings. Commit the complete directory after reviewing the live answers. Every model attempt from the final run remains in the database, including repair attempts, because those tokens and costs belong to the run. Old runs are not carried forward.
 
 ### Process documents and answer questions
 
@@ -72,7 +78,9 @@ Reconciliation rules that matter for this corpus:
 - Assessments with the same source form identifier share one assessment; imports are additional sources. Results without a form identifier are not merged across documents.
 - If any ingested document has not been extracted, answers are marked provisional and definitive plan-compliance labels are withheld.
 
-Clock fields require `HH:MM`; offsets, ranges, and seconds are rejected rather than silently stripped. Schema or evidence failures receive one recorded repair attempt.
+Clock fields require `HH:MM`; offsets, ranges, and seconds are rejected rather than silently stripped. Schema or evidence failures receive one recorded repair attempt. For repeated quotes, repair feedback supplies exact unique passages containing the surrounding date/encounter context. The model must select the matching passage; ambiguous evidence is still rejected. Nested break/presence claims require their own unique evidence quotes.
+
+Observed live-run failure: one document repeated the same schedule/break sentence under two dates. The old runner discarded 30 successful extractions when that document failed validation. Checkpoint retention and pending-only resume now prevent that loss. Tests reproduce the ambiguous source and failure/resume behavior using a mocked model; a new live run is still needed to measure extraction quality.
 
 Extractions are sealed only after their assertions and plans have evidence. Sealed extractions and reconciliations reject additional child rows as well as updates/deletes. Older unsealed databases must be rebuilt from source for this prototype; migration support is outside this change.
 
@@ -106,7 +114,7 @@ The assignment overview describes multiple patients, inpatient care, and treatme
 
 ## Performance
 
-Fresh offline verification on the supplied 31 documents (50,137 bytes): all 47 tests pass. See the committed benchmark for fresh processing time, checkpointed database size, and query latency measured on this machine.
+Fresh offline verification on the supplied 31 documents (50,137 bytes): all 50 tests pass. See the committed benchmark for fresh processing time, checkpointed database size, and query latency measured on this machine.
 
 Reproducible evidence: [database](artifacts/fixture.sqlite), [answers](artifacts/answers.json), [benchmark](artifacts/benchmark.json), and [execution log](artifacts/execution.log). `reconciliation_ms` measures resolution computation before persistence; `fresh_processing_wall_s` measures the complete fresh processing step through CLI exit.
 

@@ -40,6 +40,31 @@ def validate_evidence(content: str, envelope: ExtractionEnvelope) -> None:
         raise EvidenceError("; ".join(problems))
 
 
+def evidence_repair_feedback(content: str, envelope: ExtractionEnvelope) -> list[dict]:
+    """Offer exact contextual choices for ambiguous quotes; never choose an occurrence."""
+    feedback = []
+    for quote in sorted({q for claim in envelope.claims() for q in claim.evidence_quotes}):
+        problem = _quote_problem(content, quote)
+        if not problem:
+            continue
+        occurrences = []
+        start = content.find(quote)
+        while start >= 0 and len(occurrences) < 8:
+            # Include the previous line (often the date/encounter heading), then
+            # expand until the suggested passage itself has a unique location.
+            lo = content.rfind("\n", 0, max(0, start - 1)) + 1
+            hi = start + len(quote)
+            width = 80
+            while content.find(content[lo:hi], content.find(content[lo:hi]) + 1) >= 0:
+                lo, hi = max(0, lo - width), min(len(content), hi + width)
+                width *= 2
+            occurrences.append({"start_offset": start, "end_offset": start + len(quote),
+                                "unique_context": content[lo:hi]})
+            start = content.find(quote, start + 1)
+        feedback.append({"problem": problem, "candidates": occurrences})
+    return feedback
+
+
 def _at(day: date, clock: time) -> str:
     return datetime.combine(day, clock).isoformat(timespec="minutes")
 
