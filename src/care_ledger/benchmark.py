@@ -71,6 +71,7 @@ def run_benchmark(db: sqlite3.Connection, db_path: Path, version: str, patient: 
         "documents": {"count": documents[0], "bytes": documents[1]},
         "extraction": _extraction(db, version),
         "reconciliation_ms": round(run["elapsed_ms"], 2),
+        "reconciliation_run": run["id"],
         "query_latency": latency,
         "database_bytes": db_path.stat().st_size,
     }

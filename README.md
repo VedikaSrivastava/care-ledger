@@ -37,7 +37,7 @@ python scripts/run_pipeline.py --live
 # Or: ./scripts/run_pipeline.ps1 -Live
 ```
 
-This publishes `artifacts/live/live.sqlite`, `answers.md`, `answers.json`, `benchmark.json`, and `execution.log`. It starts from an empty database with extraction version `llm-v2`. Existing results remain untouched if a command fails. Commit the complete directory after reviewing the live answers. Every model attempt from the final run remains in the database, including repair attempts, because those tokens and costs belong to the run. Old runs are not carried forward.
+This publishes `artifacts/live/live.sqlite`, `answers.md`, `answers.json`, `benchmark.json`, and `execution.log`. It starts from an empty database with extraction version `llm-v2`. Existing results remain untouched if a command fails. The database keeps every model attempt from that run, including repairs.
 
 ### Process documents and answer questions
 
@@ -48,8 +48,8 @@ care-ledger --db artifacts/fixture.sqlite --version fixture load-fixtures
 care-ledger --db artifacts/fixture.sqlite --version fixture report
 
 # Live model extraction
-care-ledger --db artifacts/care_ledger.sqlite --version llm-v2 ingest documents
-care-ledger --db artifacts/care_ledger.sqlite --version llm-v2 extract
+care-ledger --db artifacts/live/live.sqlite --version llm-v2 ingest documents
+care-ledger --db artifacts/live/live.sqlite --version llm-v2 extract
 
 # New questions reuse the saved abstraction after restart
 care-ledger --db artifacts/fixture.sqlite --version fixture query attendance --patient HG-M042 --start 2026-01-05 --end 2026-01-30
@@ -74,7 +74,7 @@ Reconciliation rules that matter for this corpus:
 
 Clock fields require `HH:MM`; offsets, ranges, and seconds are rejected rather than silently stripped. Calendar dates require `YYYY-MM-DD` with a four-digit year from 1900 through 2099, so a month-day stuffed into the year (`0122-01-22`) cannot disagree with `2026-01-22`. Schema, evidence, or omitted timed-break failures receive one recorded repair attempt.
 
-Extractions are sealed only after their assertions and plans have evidence. Sealed extractions and reconciliations reject additional child rows as well as updates/deletes. Older unsealed databases must be rebuilt from source for this prototype; migration support is outside this change.
+Extractions are sealed only after their assertions and plans have evidence. Sealed extractions and reconciliations reject additional child rows as well as updates and deletes.
 
 Unknown is stored as null, not zero. Numerical answers are computed in code from saved resolutions.
 
@@ -106,16 +106,18 @@ The assignment overview describes multiple patients, inpatient care, and treatme
 
 ## Performance
 
-Fresh offline verification on the supplied 31 documents (50,137 bytes): 55 tests pass. See the committed benchmark for fresh processing time, checkpointed database size, and query latency measured on this machine.
+Fresh offline verification on the supplied 31 documents (50,137 bytes): 56 tests pass. The benchmark records fresh processing time, checkpointed database size, and query latency.
 
 Reproducible evidence: [database](artifacts/fixture.sqlite), [answers](artifacts/answers.json), [benchmark](artifacts/benchmark.json), and [execution log](artifacts/execution.log). `reconciliation_ms` measures resolution computation before persistence; `fresh_processing_wall_s` measures the complete fresh processing step through CLI exit.
 
-Live extraction of the same 31 documents (`gpt-5.4-mini`, reasoning `medium`, version `llm-v2`) matched those totals: 12 sessions, 11 days, 585–595 minutes, weekly minutes 140 / 120 / 180 / 145–155, the same four compliance results, and PHQ-9 scores 18, 14, and 10. The submitted run is [artifacts/live](artifacts/live): 31 model calls, 0 failures, 45.4 s of model time (47.7 s including ingest and reconcile), 71,023 input tokens (54,272 cached), 52,321 output tokens (35,528 reasoning), about $0.25.
+Live extraction of the same 31 documents (`gpt-5.4-mini`, reasoning `medium`, version `llm-v2`) matched those totals: 12 sessions, 11 days, 585–595 minutes, weekly minutes 140 / 120 / 180 / 145–155, the same four compliance results, and PHQ-9 scores 18, 14, and 10. The submitted run is [artifacts/live](artifacts/live): 31 model calls, 0 failures, 45.4 s of model time (47.7 s including ingest and reconcile), 71,023 input tokens (54,272 cached), 52,321 output tokens (35,528 reasoning), $0.252078.
 
 Cost estimates use a configured pricing snapshot dated 2026-10-11 ([pricing source](https://developers.openai.com/api/docs/models/gpt-5.4-mini)): $0.75 / $0.075 / $4.50 per million input / cached input / output tokens, standard tier. Rates are not fetched automatically; verify/update the snapshot before a live benchmark. Each call is priced separately. Missing usage or an unpriced model leaves total cost unknown, with a separately labeled known subtotal. Cached input is a subset of input; reasoning is a subset of output, so neither is charged twice. Usage is captured before local validation, and SDK retries are disabled so repair calls are individually recorded.
 
 At 500k–1M documents, the first bottleneck is per-document model extraction (cost and latency) in `extract.py`, then SQLite’s single-writer ingest path. Planned changes: queue by content hash, cache `(sha256, extraction_version)`, and move write-heavy tables to PostgreSQL. Those scale remarks are estimates, not measurements from this corpus.
 
 ## Disclosure
+
+One saved live observation was reattributed without changing the sealed extraction. The cofacilitator note quoting "Casey explained…" was stored as patient-reported. An append-only review records the reporter as collateral, supported by that same quote. The original assertion remains.
 
 Source records are under `documents/`. Fixture claims are independently authored for offline evaluation; answers are not hardcoded into calculation logic. AI coding assistance (Cursor and Codex) was used while building and reviewing the prototype.

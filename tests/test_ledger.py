@@ -16,6 +16,7 @@ from care_ledger.persist import (
     persist_extraction,
     persist_fixtures,
     fixture_envelope,
+    review_reporter,
     stated_break_clocks,
     validate_evidence,
     validate_stated_breaks,
@@ -447,6 +448,29 @@ def test_presence_and_breaks_stay_correlated_by_source():
     ])
     assert sorted(a.minutes for a in r.alternatives) == [50, 50]
     assert r.duration_status == "established"
+
+
+def test_reporter_review_keeps_the_sealed_assertion(db):
+    row = db.execute(
+        "SELECT id, reporter FROM assertions WHERE kind = 'observation' AND reporter = 'patient' LIMIT 1"
+    ).fetchone()
+    quote = db.execute(
+        """SELECT substr(d.content, es.start_offset + 1, es.end_offset - es.start_offset)
+           FROM assertion_evidence ae JOIN evidence_spans es ON es.id = ae.evidence_id
+           JOIN documents d ON d.id = es.document_id WHERE ae.assertion_id = ?""",
+        (row["id"],),
+    ).fetchone()[0]
+    review_reporter(db, row["id"], "collateral", basis=quote, reviewer="human-review")
+    db.commit()
+    assert db.execute("SELECT reporter FROM assertions WHERE id = ?", (row["id"],)).fetchone()[0] == "patient"
+    with pytest.raises(sqlite3.IntegrityError, match="append-only"):
+        db.execute("UPDATE assertions SET reporter = 'collateral' WHERE id = ?", (row["id"],))
+    with pytest.raises(sqlite3.IntegrityError, match="append-only"):
+        db.execute("UPDATE assertion_reviews SET replacement_value = 'clinician'")
+    reviewed = next(o for o in query(db, "progress", **WINDOW)["observations"] if o.get("attribution_review"))
+    assert reviewed["reporter"] == "collateral"
+    assert reviewed["attribution_review"]["previous"] == "patient"
+    assert reviewed["attribution_review"]["basis"] == quote
 
 
 def test_reconnect_segments_from_one_note_are_accepted_together():

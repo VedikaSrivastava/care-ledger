@@ -245,6 +245,19 @@ CREATE TABLE IF NOT EXISTS calculation_runs(
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- A later review of a sealed claim. The assertion row is not updated.
+CREATE TABLE IF NOT EXISTS assertion_reviews(
+    id INTEGER PRIMARY KEY,
+    assertion_id INTEGER NOT NULL REFERENCES assertions(id),
+    field TEXT NOT NULL CHECK (field = 'reporter'),
+    previous_value TEXT NOT NULL,
+    replacement_value TEXT NOT NULL CHECK (replacement_value IN ('patient', 'clinician', 'collateral')),
+    basis TEXT NOT NULL,
+    reviewer TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CHECK (previous_value <> replacement_value)
+);
+
 -- Sealed extractions and reconciliations reject additional child rows.
 CREATE TABLE IF NOT EXISTS extraction_seals(
     extraction_id INTEGER PRIMARY KEY REFERENCES extractions(id)

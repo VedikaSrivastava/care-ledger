@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-10-11T23:49:18-04:00",
+  "measured_at": "2026-10-12T01:59:48-04:00",
   "documents": {
     "count": 31,
     "bytes": 50137
@@ -7,47 +7,48 @@
   "extraction": {
     "model_calls": 0
   },
-  "reconciliation_ms": 0.69,
+  "reconciliation_ms": 0.79,
+  "reconciliation_run": 1,
   "query_latency": {
     "attendance": {
       "runs": 30,
-      "median_ms": 0.35,
-      "p95_ms": 0.43,
-      "max_ms": 1.38
+      "median_ms": 0.36,
+      "p95_ms": 0.47,
+      "max_ms": 1.37
     },
     "minutes": {
       "runs": 30,
-      "median_ms": 0.44,
-      "p95_ms": 0.45,
-      "max_ms": 0.48
+      "median_ms": 0.46,
+      "p95_ms": 0.48,
+      "max_ms": 0.59
     },
     "compliance_patient": {
       "runs": 30,
-      "median_ms": 0.45,
-      "p95_ms": 0.55,
-      "max_ms": 0.63
+      "median_ms": 0.46,
+      "p95_ms": 0.53,
+      "max_ms": 0.59
     },
     "days": {
       "runs": 30,
-      "median_ms": 0.44,
-      "p95_ms": 0.47,
-      "max_ms": 0.79
+      "median_ms": 0.47,
+      "p95_ms": 0.67,
+      "max_ms": 0.85
     },
     "progress": {
       "runs": 30,
-      "median_ms": 0.22,
-      "p95_ms": 0.23,
-      "max_ms": 0.46
+      "median_ms": 0.24,
+      "p95_ms": 0.37,
+      "max_ms": 0.57
     },
     "compliance_collection": {
       "runs": 30,
-      "median_ms": 0.44,
-      "p95_ms": 0.49,
-      "max_ms": 0.56
+      "median_ms": 0.47,
+      "p95_ms": 0.54,
+      "max_ms": 0.59
     }
   },
-  "database_bytes": 376832,
-  "fresh_processing_wall_s": 3.694,
+  "database_bytes": 380928,
+  "fresh_processing_wall_s": 2.065,
   "fresh_processing_scope": "ingest + extraction/persist + reconciliation, including CLI startup",
   "database_size_scope": "checkpointed SQLite database after report and benchmark"
 }

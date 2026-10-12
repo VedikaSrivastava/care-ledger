@@ -2138,7 +2138,7 @@
         "date": "2026-01-10",
         "encounter": "HG-E104",
         "category": "functioning",
-        "reporter": "patient",
+        "reporter": "collateral",
         "statement": "Casey saw the reminders as intended to help, but said repeated prompts increased tension.",
         "evidence": [
           {
@@ -2149,7 +2149,12 @@
             ],
             "quote": "Casey explained that the reminders were an attempt to help, while also recognizing that repeated prompts increased tension."
           }
-        ]
+        ],
+        "attribution_review": {
+          "previous": "patient",
+          "replacement": "collateral",
+          "basis": "Casey explained that the reminders were an attempt to help, while also recognizing that repeated prompts increased tension."
+        }
       },
       {
         "date": "2026-01-10",

@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-10-12T00:34:11-04:00",
+  "measured_at": "2026-10-12T01:47:45-04:00",
   "documents": {
     "count": 31,
     "bytes": 50137
@@ -36,49 +36,51 @@
         }
       }
     },
-    "sdk_retries": 0
+    "sdk_retries": 0,
+    "measured_at": "2026-10-12T00:34:11-04:00"
   },
-  "reconciliation_ms": 2.45,
+  "reconciliation_ms": 2.04,
+  "reconciliation_run": 2,
   "query_latency": {
     "attendance": {
       "runs": 30,
-      "median_ms": 0.36,
-      "p95_ms": 0.49,
-      "max_ms": 1.51
+      "median_ms": 0.37,
+      "p95_ms": 0.48,
+      "max_ms": 1.73
     },
     "minutes": {
       "runs": 30,
-      "median_ms": 0.45,
-      "p95_ms": 0.58,
-      "max_ms": 0.77
+      "median_ms": 0.46,
+      "p95_ms": 0.49,
+      "max_ms": 0.61
     },
     "compliance_patient": {
       "runs": 30,
       "median_ms": 0.46,
       "p95_ms": 0.59,
-      "max_ms": 1.1
+      "max_ms": 0.69
     },
     "days": {
       "runs": 30,
       "median_ms": 0.48,
-      "p95_ms": 0.72,
-      "max_ms": 0.82
+      "p95_ms": 0.52,
+      "max_ms": 0.79
     },
     "progress": {
       "runs": 30,
-      "median_ms": 0.49,
-      "p95_ms": 0.55,
-      "max_ms": 0.93
+      "median_ms": 0.56,
+      "p95_ms": 0.59,
+      "max_ms": 0.94
     },
     "compliance_collection": {
       "runs": 30,
       "median_ms": 0.46,
-      "p95_ms": 0.58,
-      "max_ms": 0.66
+      "p95_ms": 0.5,
+      "max_ms": 0.61
     }
   },
-  "database_bytes": 479232,
+  "database_bytes": 655360,
   "fresh_processing_wall_s": 47.658,
   "fresh_processing_scope": "ingest + extraction/persist + reconciliation, including CLI startup",
-  "database_size_scope": "checkpointed SQLite database after report and benchmark"
+  "fresh_processing_measured_at": "2026-10-12T00:34:11-04:00"
 }

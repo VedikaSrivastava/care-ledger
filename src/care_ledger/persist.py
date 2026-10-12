@@ -374,6 +374,34 @@ def persist_extraction(
     return extraction_id
 
 
+def review_reporter(db: sqlite3.Connection, assertion_id: int, replacement: str, *, basis: str, reviewer: str) -> int:
+    """Record a reporter correction. The sealed assertion stays as originally extracted."""
+    row = db.execute(
+        "SELECT kind, reporter FROM assertions WHERE id = ?", (assertion_id,)
+    ).fetchone()
+    if row is None or row["kind"] != "observation":
+        raise LookupError(f"observation {assertion_id} does not exist")
+    quotes = {
+        quote for (quote,) in db.execute(
+            """SELECT substr(d.content, es.start_offset + 1, es.end_offset - es.start_offset)
+               FROM assertion_evidence ae
+               JOIN evidence_spans es ON es.id = ae.evidence_id
+               JOIN documents d ON d.id = es.document_id
+               WHERE ae.assertion_id = ?""",
+            (assertion_id,),
+        )
+    }
+    if basis not in quotes:
+        raise EvidenceError("the review basis must be an evidence quote already stored for this observation")
+    if row["reporter"] == replacement:
+        raise ValueError("the review must change the reporter")
+    return db.execute(
+        "INSERT INTO assertion_reviews(assertion_id, field, previous_value, replacement_value, basis, reviewer) "
+        "VALUES (?, 'reporter', ?, ?, ?, ?)",
+        (assertion_id, row["reporter"], replacement, basis, reviewer),
+    ).lastrowid
+
+
 def fixture_envelope(patient: Patient, claims: dict) -> ExtractionEnvelope:
     return ExtractionEnvelope.model_validate({
         "patient": patient.model_dump(mode="json"),

@@ -108,8 +108,12 @@ def render_progress(p: dict) -> list[str]:
     lines += ["", "**Documented observations:**"]
     for o in p["observations"]:
         encounter = f" {o['encounter']}" if o["encounter"] else ""
+        review = ""
+        if o.get("attribution_review"):
+            change = o["attribution_review"]
+            review = f" Attribution reviewed from {change['previous']} to {change['replacement']}; the original assertion is unchanged."
         lines.append(f"- {o['date']}{encounter} [{o['reporter']} / {o['category']}] {o['statement']} "
-                     f"{_quote(o['evidence'])}")
+                     f"{_quote(o['evidence'])}{review}")
     lines += ["", "**Limits:**"] + [f"- {limit}" for limit in p["limits"]]
     return lines
 

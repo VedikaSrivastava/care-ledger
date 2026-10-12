@@ -501,9 +501,12 @@ def progress(db, run, *, patient: str, start: date, end: date) -> dict:
         (p["id"], *scope, *window),
     ).fetchall()
     observations = db.execute(
-        """SELECT a.id, a.authored_on, a.category, a.reporter, a.statement, e.external_id AS encounter
+        """SELECT a.id, a.authored_on, a.category, a.reporter, a.statement, e.external_id AS encounter,
+                  rev.previous_value AS reviewed_from, rev.replacement_value AS reviewed_reporter, rev.basis AS review_basis
            FROM assertions a JOIN extractions x ON x.id = a.extraction_id
            LEFT JOIN encounters e ON e.id = a.encounter_id
+           LEFT JOIN assertion_reviews rev ON rev.id = (
+               SELECT max(id) FROM assertion_reviews WHERE assertion_id = a.id AND field = 'reporter')
            WHERE a.patient_id = ? AND a.kind = 'observation' AND a.source_status = 'final'
              AND x.version = ? AND x.id <= ? AND a.authored_on BETWEEN ? AND ?
            ORDER BY a.authored_on, a.id""",
@@ -537,7 +540,10 @@ def progress(db, run, *, patient: str, start: date, end: date) -> dict:
         "assessments": list(assessments.values()), "trend": trend,
         "observations": [
             {"date": r["authored_on"], "encounter": r["encounter"], "category": r["category"],
-             "reporter": r["reporter"], "statement": r["statement"], "evidence": evidence[r["id"]]}
+             "reporter": r["reviewed_reporter"] or r["reporter"], "statement": r["statement"],
+             "evidence": evidence[r["id"]],
+             **({"attribution_review": {"previous": r["reviewed_from"], "replacement": r["reviewed_reporter"],
+                                        "basis": r["review_basis"]}} if r["reviewed_reporter"] else {})}
             for r in observations
         ],
         "limits": [
