@@ -194,10 +194,15 @@ def test_second_persist_of_same_document_is_rejected(db):
             persist_extraction(db, doc, envelope({}), version=VERSION, producer="fixture")
 
 
-def test_clock_times_keep_the_local_hhmm():
-    interval = Interval(start="10:45:00-11:00", end="11:00:00.000000000Z", evidence_quotes=["quoted"])
-    assert (interval.start.hour, interval.start.minute) == (10, 45)
-    assert (interval.end.hour, interval.end.minute) == (11, 0)
+@pytest.mark.parametrize("clock", ["10:45:00-11:00", "11:00:00.000000000Z", "10:45Z", "10:45:30", "9:00"])
+def test_clock_times_reject_ranges_offsets_and_precision_loss(clock):
+    with pytest.raises(ValueError):
+        Interval(start=clock, end="12:00", evidence_quotes=["quoted"])
+
+
+def test_local_clock_round_trip():
+    interval = Interval(start="10:45", end="11:00", evidence_quotes=["quoted"])
+    assert Interval.model_validate_json(interval.model_dump_json()) == interval
 
 
 def test_unlocatable_evidence_is_rejected_atomically(db):
@@ -330,19 +335,7 @@ def test_competing_corrections_are_disputed_not_order_dependent():
 
 def test_disputed_service_type_keeps_the_date_in_weekly_totals(db):
     assert query(db, "minutes", **WINDOW)["weeks"][-1]["minutes"] == {"min": 145, "max": 155}
-    encounter_id = db.execute("SELECT id FROM encounters WHERE external_id='HG-E115'").fetchone()[0]
-    patient_id = db.execute("SELECT id FROM patients").fetchone()[0]
-    extraction_id = db.execute(
-        "SELECT a.extraction_id FROM assertions a WHERE a.encounter_id=? AND a.kind='encounter_detail' LIMIT 1",
-        (encounter_id,),
-    ).fetchone()[0]
-    db.execute(
-        "INSERT INTO assertions(extraction_id, patient_id, encounter_id, kind, source_status, authored_on, "
-        "service_date, service_type) VALUES (?, ?, ?, 'encounter_detail', 'final', "
-        "'2026-01-26', '2026-01-26', 'group_therapy')",
-        (extraction_id, patient_id, encounter_id),
-    )
-    db.commit()
+    add_detail(db, "2026-01-26", "group_therapy")
     reconcile(db, VERSION)
     after = query(db, "compliance", **WINDOW)["patients"][0]["weeks"][-1]
     assert after["status"] == "cannot_determine"
@@ -387,3 +380,117 @@ def test_partial_corpus_makes_compliance_provisional(tmp_path):
     assert result["coverage_status"] == "provisional"
     assert all(w["status"] == "cannot_determine" for w in result["patients"][0]["weeks"])
     db.close()
+
+
+# Regression cases use new evidence in new sealed extractions.
+def add_detail(db, service_date, service_type="individual_therapy"):
+    quote = f"HG-E115 service date {service_date}, type {service_type}."
+    import hashlib
+    with db:
+        doc = db.execute("INSERT INTO documents(sha256,content) VALUES (?,?)",
+                         (hashlib.sha256(quote.encode()).hexdigest(), quote)).lastrowid
+        db.execute("INSERT INTO document_sources VALUES (?,?)", (doc, f"synthetic-{doc}.txt"))
+        persist_extraction(db, doc, envelope({"encounters": [{
+            "encounter_id": "HG-E115", "service_date": service_date, "service_type": service_type,
+            "source_status": "final", "authored_on": "2026-01-30", "attendance": None,
+            "patient_presence": [], "breaks": [], "charges": [], "evidence_quotes": [quote]
+        }]}), version=VERSION, producer="test")
+
+
+def correction(id, old, new, field="presence_end", day="2026-01-20"):
+    return claim(id, "correction", id, day, corrected_field=field,
+                 replaced_value=at(old), replacement_value=at(new))
+
+
+def test_correction_chain_follows_replacement():
+    r = resolve([claim(1, "presence", starts_at=at("10:00"), ends_at=at("11:30")),
+                 correction(2, "11:30", "11:15"), correction(3, "11:15", "11:10", day="2026-01-21")])
+    assert [a.minutes for a in r.alternatives] == [70]
+    assert r.duration_status == "corrected"
+
+
+@pytest.mark.parametrize("corrections", [
+    [correction(2, "10:00", "10:45", "presence_start"), correction(3, "11:00", "10:30")],
+    [correction(2, "11:00", "11:15"), correction(3, "11:15", "11:00", day="2026-01-21")],
+])
+def test_invalid_or_cyclic_corrections_leave_unknown_duration(corrections):
+    r = resolve([claim(1, "presence", starts_at=at("10:00"), ends_at=at("11:00")), *corrections])
+    assert r.duration_status == "unknown" and r.alternatives == []
+    assert any(role == "disputed" for role, _ in r.members.values())
+
+
+def test_duplicate_correction_edges_keep_their_own_target_cutoffs():
+    from itertools import permutations
+    claims = [claim(1, "presence", 1, "2026-01-19", starts_at=at("10:00"), ends_at=at("11:30")),
+              claim(2, "presence", 2, "2026-01-21", starts_at=at("10:00"), ends_at=at("11:30")),
+              correction(3, "11:30", "11:15"), correction(4, "11:30", "11:15", day="2026-01-22")]
+    for order in permutations(claims):
+        assert {a.minutes for a in resolve(list(order)).alternatives} == {75}
+
+
+def test_disputed_dates_inside_week_keep_session_and_minutes(db):
+    add_detail(db, "2026-01-27")
+    reconcile(db, VERSION)
+    result = query(db, "attendance", **WINDOW)
+    assert result["sessions"] == {"min": 12, "max": 12}
+    assert result["minutes"] == {"min": 585, "max": 595}
+    last = query(db, "compliance", **WINDOW)["patients"][0]["weeks"][-1]
+    assert last["minutes"] == {"min": 145, "max": 155}
+    assert last["therapy_days"] == {"min": 3, "max": 3}
+    assert last["status"] == "cannot_determine"
+    day = query(db, "days", patient="HG-M042", dates=[date(2026, 1, 26)])["days"][0]
+    assert day["therapy_contacts"] == {"min": 0, "max": 1}
+    assert day["minutes"] == {"min": 0, "max": 50}
+
+
+def test_disputed_date_crosses_week_and_window(db):
+    add_detail(db, "2026-02-02")
+    reconcile(db, VERSION)
+    assert query(db, "minutes", **WINDOW)["minutes"] == {"min": 545, "max": 595}
+    last = query(db, "compliance", **WINDOW)["patients"][0]["weeks"][-1]
+    assert last["status"] == "cannot_determine"
+    assert last["minutes"] == {"min": 105, "max": 155}
+    assert last["therapy_days"] == {"min": 2, "max": 3}
+
+
+def test_sealed_extraction_rejects_new_children(db):
+    x = db.execute("SELECT id FROM extractions LIMIT 1").fetchone()[0]
+    patient = db.execute("SELECT id FROM patients LIMIT 1").fetchone()[0]
+    with pytest.raises(sqlite3.IntegrityError, match="sealed"):
+        db.execute("INSERT INTO assertions(extraction_id,patient_id,kind,source_status,authored_on,category,reporter,statement) "
+                   "VALUES (?,?,'observation','final','2026-01-19','symptom','patient','Injected')", (x,patient))
+    with pytest.raises(sqlite3.IntegrityError, match="sealed"):
+        db.execute("INSERT INTO plans(extraction_id,patient_id,effective_start,effective_end,min_therapy_days,min_therapy_minutes) "
+                   "VALUES (?,?,'2026-01-01','2026-01-31',3,150)", (x,patient))
+    for table, parent, column in [("assertion_evidence", "assertions", "assertion_id"),
+                                  ("plan_evidence", "plans", "plan_id")]:
+        parent_id = db.execute(f"SELECT id FROM {parent} LIMIT 1").fetchone()[0]
+        evidence = db.execute(f"SELECT evidence_id FROM {table} WHERE {column}=?", (parent_id,)).fetchone()[0]
+        with pytest.raises(sqlite3.IntegrityError, match="sealed"):
+            db.execute(f"INSERT INTO {table} VALUES (?,?)", (parent_id,evidence))
+    plan = db.execute("SELECT id FROM plans LIMIT 1").fetchone()[0]
+    with pytest.raises(sqlite3.IntegrityError, match="sealed"):
+        db.execute("INSERT INTO plan_services VALUES (?,'other')", (plan,))
+
+
+def test_unsealed_evidence_free_claims_cannot_be_published(db):
+    with db:
+        x = db.execute("INSERT INTO extractions(document_id,version,producer,output_json) "
+                       "SELECT id,'unsealed','test','{}' FROM documents LIMIT 1").lastrowid
+        patient = db.execute("SELECT id FROM patients LIMIT 1").fetchone()[0]
+        db.execute("INSERT INTO assertions(extraction_id,patient_id,kind,source_status,authored_on,category,reporter,statement) "
+                   "VALUES (?,?,'observation','final','2026-01-19','symptom','patient','Injected')", (x,patient))
+    with pytest.raises(sqlite3.IntegrityError, match="evidence"):
+        db.execute("INSERT INTO extraction_seals VALUES (?)", (x,))
+    with pytest.raises(ValueError, match="unsealed"):
+        reconcile(db, "unsealed")
+
+
+def test_sealed_reconciliation_rejects_new_results(db):
+    resolution = db.execute('SELECT id FROM encounter_resolutions LIMIT 1').fetchone()[0]
+    with pytest.raises(sqlite3.IntegrityError, match='sealed'):
+        db.execute("INSERT INTO duration_alternatives(resolution_id,minutes,derivation) VALUES (?,999,'Injected')",
+                   (resolution,))
+    member = db.execute('SELECT resolution_id,assertion_id FROM resolution_members LIMIT 1').fetchone()
+    with pytest.raises(sqlite3.IntegrityError, match='sealed'):
+        db.execute("INSERT INTO resolution_members VALUES (?,?,'accepted',NULL)", tuple(member))

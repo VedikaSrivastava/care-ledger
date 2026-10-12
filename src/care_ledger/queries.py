@@ -4,7 +4,7 @@ import json
 import sqlite3
 import time
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, timedelta
 
 from .models import THERAPY_SERVICES
@@ -44,6 +44,8 @@ class Outcome:
     duration_status: str
     alternatives: tuple[tuple[int, str], ...]
     documents: tuple[str, ...]
+    possible_dates: tuple[str, ...] = ()
+    wholly_in_window: bool = True
 
     @property
     def minutes(self) -> Range:
@@ -53,8 +55,6 @@ class Outcome:
         return Range(0, None) if self.duration_status == "unknown" else ZERO
 
     def classify(self, eligible: frozenset[str]) -> tuple[str, str]:
-        if self.service_date is None:
-            return "undetermined", f"service date is {self.detail_status}"
         if self.service_type is None:
             return "undetermined", f"service type is {self.detail_status}"
         if self.service_type not in eligible:
@@ -68,8 +68,10 @@ class Outcome:
     def contribution(self, eligible: frozenset[str]) -> tuple[Range, Range]:
         """(session count, minutes) this encounter can contribute."""
         status, _ = self.classify(eligible)
-        if status == "included":
+        if status == "included" and self.wholly_in_window:
             return Range(1, 1), self.minutes
+        if status == "included":
+            return Range(0, 1), Range(0, self.minutes.hi)
         if status == "undetermined":
             return Range(0, 1), Range(0, self.minutes.hi)
         return ZERO, ZERO
@@ -79,6 +81,8 @@ class Outcome:
         return {
             "encounter": self.encounter,
             "date": self.service_date,
+            "possible_dates": list(self.possible_dates),
+            "date_certain_in_window": self.wholly_in_window,
             "service_type": self.service_type,
             "attendance": self.attendance or self.attendance_status,
             "status": status,
@@ -93,11 +97,16 @@ class Outcome:
 # --- abstraction access -------------------------------------------------------
 
 def current_run(db: sqlite3.Connection, version: str) -> sqlite3.Row:
+    if db.execute("SELECT 1 FROM extractions x WHERE version=? AND NOT EXISTS "
+                  "(SELECT 1 FROM extraction_seals s WHERE s.extraction_id=x.id)", (version,)).fetchone():
+        raise StaleAbstraction("unsealed extractions exist; rebuild from source")
     run = db.execute(
         "SELECT * FROM reconciliation_runs WHERE extraction_version = ? ORDER BY id DESC LIMIT 1", (version,)
     ).fetchone()
     if run is None:
         raise LookupError(f"no reconciliation run for extraction version {version!r}; run `care-ledger reconcile`")
+    if not db.execute("SELECT 1 FROM reconciliation_seals WHERE run_id=?", (run["id"],)).fetchone():
+        raise StaleAbstraction("reconciliation is not sealed; run `care-ledger reconcile`")
     latest = db.execute("SELECT max(id) FROM extractions WHERE version = ?", (version,)).fetchone()[0]
     if latest > run["through_extraction_id"]:
         raise StaleAbstraction("new extractions exist since the last reconciliation; run `care-ledger reconcile`")
@@ -191,6 +200,14 @@ def _outcomes(db: sqlite3.Connection, run_id: int, patient_id: int) -> list[Outc
         (run_id,),
     ):
         alternatives[row[0]].append((row[1], row[2]))
+    possible_dates = defaultdict(set)
+    for row in db.execute(
+        "SELECT m.resolution_id, a.service_date FROM resolution_members m "
+        "JOIN encounter_resolutions r ON r.id=m.resolution_id "
+        "JOIN assertions a ON a.id=m.assertion_id "
+        "WHERE r.run_id=? AND a.kind='encounter_detail' AND a.source_status='final'", (run_id,)
+    ):
+        possible_dates[row[0]].add(row[1])
     documents = _documents_by_resolution(db, run_id)
     rows = db.execute(
         """SELECT r.*, e.external_id FROM encounter_resolutions r JOIN encounters e ON e.id = r.encounter_id
@@ -200,7 +217,8 @@ def _outcomes(db: sqlite3.Connection, run_id: int, patient_id: int) -> list[Outc
     return [
         Outcome(r["id"], r["external_id"], r["service_date"], r["service_type"], r["detail_status"],
                 r["attendance"], r["attendance_status"], r["duration_status"],
-                tuple(alternatives[r["id"]]), documents.get(r["id"], ()))
+                tuple(alternatives[r["id"]]), documents.get(r["id"], ()),
+                tuple(sorted(possible_dates[r["id"]])))
         for r in rows
     ]
 
@@ -239,13 +257,39 @@ def _weeks(start: date, end: date):
 
 
 def _in_window(outcomes: list[Outcome], start: date, end: date) -> list[Outcome]:
-    return [o for o in outcomes if o.service_date and start.isoformat() <= o.service_date <= end.isoformat()]
+    result = []
+    for o in outcomes:
+        candidates = o.possible_dates or ((o.service_date,) if o.service_date else ())
+        if not candidates:
+            candidates = tuple((start + timedelta(days=i)).isoformat() for i in range((end-start).days + 1))
+            o = replace(o, wholly_in_window=False)
+        inside = tuple(d for d in candidates if start.isoformat() <= d <= end.isoformat())
+        if inside:
+            result.append(replace(o, possible_dates=inside,
+                                  wholly_in_window=o.wholly_in_window and len(inside) == len(candidates)))
+    return result
 
 
 def _days(outcomes: list[Outcome], eligible: frozenset[str]) -> Range:
-    certain = {o.service_date for o in outcomes if o.classify(eligible)[0] == "included"}
-    possible = certain | {o.service_date for o in outcomes if o.classify(eligible)[0] == "undetermined"}
-    return Range(len(certain), len(possible))
+    # Reachable date sets avoid counting one encounter on multiple possible days.
+    states = {frozenset()}
+    for o in outcomes:
+        status, _ = o.classify(eligible)
+        if status == "excluded":
+            continue
+        options = list(o.possible_dates or ((o.service_date,) if o.service_date else ()))
+        if status == "undetermined" or not o.wholly_in_window or not options:
+            options.append(None)
+        states = {days | ({d} if d else set()) for days in states for d in options}
+        if len(states) > 10000:
+            # Conservative bounds for unusually large disputed-date collections.
+            certain = {v.service_date for v in outcomes if v.service_date
+                       and v.wholly_in_window and v.classify(eligible)[0] == "included"}
+            possible = set().union(*(set(v.possible_dates) for v in outcomes
+                                   if v.classify(eligible)[0] != "excluded"))
+            return Range(len(certain), max(len(certain), len(possible)))
+    sizes = [len(days) for days in states]
+    return Range(min(sizes), max(sizes))
 
 
 def _total(outcomes: list[Outcome], eligible: frozenset[str]) -> tuple[Range, Range]:
@@ -353,7 +397,7 @@ def _week_compliance(plans: list[dict], outcomes: list[Outcome], first: date, la
     else:
         status = "cannot_determine"
     depends_on = [o.encounter for o in outcomes
-                  if o.classify(eligible)[0] == "undetermined"
+                  if o.classify(eligible)[0] == "undetermined" or not o.wholly_in_window
                   or (o.classify(eligible)[0] == "included" and o.minutes.lo != o.minutes.hi)]
     return base | {
         "status": status,
@@ -427,7 +471,7 @@ def days(db, run, *, patient: str, dates: list[date]) -> dict:
     outcomes = _outcomes(db, run["id"], p["id"])
     result = []
     for day in dates:
-        on_day = [o for o in outcomes if o.service_date == day.isoformat()]
+        on_day = _in_window(outcomes, day, day)
         sessions, mins = _total(on_day, THERAPY_SERVICES)
         result.append({"date": day.isoformat(), "therapy_contacts": sessions.json(), "minutes": mins.json(),
                        "encounters": [_encounter_detail(db, o) for o in on_day]})

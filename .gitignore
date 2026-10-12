@@ -11,3 +11,6 @@ artifacts/*.sqlite-*
 dist/
 build/
 *.egg-info/
+
+.care-ledger-run-*/
+artifacts/live/*.sqlite-*

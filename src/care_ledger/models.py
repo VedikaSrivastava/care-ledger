@@ -6,28 +6,25 @@ from datetime import date, time
 from enum import StrEnum
 from typing import Annotated
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict, model_validator
+from pydantic import BaseModel, BeforeValidator, ConfigDict, PlainSerializer, WithJsonSchema, model_validator
 
-_CLOCK = re.compile(
-    r"^(\d{1,2}:\d{2})(?::(\d{2})(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?$",
-    re.IGNORECASE,
-)
+_CLOCK = re.compile(r"^\d{2}:\d{2}$")
 
 
 def _local_clock(value: object) -> time:
-    """Parse a local HH:MM clock. Fractional seconds, Z, and offsets are ignored."""
+    """Require one local minute-precision clock; never discard offsets or seconds."""
     if isinstance(value, time):
-        return value.replace(tzinfo=None, microsecond=0)
-    if isinstance(value, str):
-        match = _CLOCK.match(value.strip())
-        if not match:
-            raise ValueError(f"expected HH:MM local clock time, got {value!r}")
-        clock = match.group(1) if match.group(2) is None else f"{match.group(1)}:{match.group(2)}"
-        return time.fromisoformat(clock)
-    raise ValueError(f"expected a clock time, got {type(value).__name__}")
+        if value.tzinfo is not None or value.second or value.microsecond:
+            raise ValueError("expected a naive minute-precision local clock")
+        return value
+    if isinstance(value, str) and _CLOCK.fullmatch(value):
+        return time.fromisoformat(value)
+    raise ValueError(f"expected HH:MM local clock time, got {value!r}")
 
 
-Clock = Annotated[time, BeforeValidator(_local_clock)]
+Clock = Annotated[time, BeforeValidator(_local_clock),
+                  PlainSerializer(lambda v: v.isoformat(timespec="minutes"), return_type=str),
+                  WithJsonSchema({"type": "string", "pattern": r"^([01][0-9]|2[0-3]):[0-5][0-9]$"})]
 
 
 class ServiceType(StrEnum):

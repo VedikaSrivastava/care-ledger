@@ -53,6 +53,10 @@
       {
         "encounter": "HG-E101",
         "date": "2026-01-05",
+        "possible_dates": [
+          "2026-01-05"
+        ],
+        "date_certain_in_window": true,
         "service_type": "individual_therapy",
         "attendance": "attended",
         "status": "included",
@@ -73,6 +77,10 @@
       {
         "encounter": "HG-E102",
         "date": "2026-01-06",
+        "possible_dates": [
+          "2026-01-06"
+        ],
+        "date_certain_in_window": true,
         "service_type": "group_therapy",
         "attendance": "attended",
         "status": "included",
@@ -94,6 +102,10 @@
       {
         "encounter": "HG-E104",
         "date": "2026-01-09",
+        "possible_dates": [
+          "2026-01-09"
+        ],
+        "date_certain_in_window": true,
         "service_type": "family_therapy",
         "attendance": "attended",
         "status": "included",
@@ -115,6 +127,10 @@
       {
         "encounter": "HG-E105",
         "date": "2026-01-12",
+        "possible_dates": [
+          "2026-01-12"
+        ],
+        "date_certain_in_window": true,
         "service_type": "group_therapy",
         "attendance": "attended",
         "status": "included",
@@ -136,6 +152,10 @@
       {
         "encounter": "HG-E107",
         "date": "2026-01-14",
+        "possible_dates": [
+          "2026-01-14"
+        ],
+        "date_certain_in_window": true,
         "service_type": "individual_therapy",
         "attendance": "attended",
         "status": "included",
@@ -156,6 +176,10 @@
       {
         "encounter": "HG-E110",
         "date": "2026-01-19",
+        "possible_dates": [
+          "2026-01-19"
+        ],
+        "date_certain_in_window": true,
         "service_type": "group_therapy",
         "attendance": "attended",
         "status": "included",
@@ -178,6 +202,10 @@
       {
         "encounter": "HG-E111",
         "date": "2026-01-19",
+        "possible_dates": [
+          "2026-01-19"
+        ],
+        "date_certain_in_window": true,
         "service_type": "individual_therapy",
         "attendance": "attended",
         "status": "included",
@@ -197,6 +225,10 @@
       {
         "encounter": "HG-E112",
         "date": "2026-01-21",
+        "possible_dates": [
+          "2026-01-21"
+        ],
+        "date_certain_in_window": true,
         "service_type": "individual_therapy",
         "attendance": "attended",
         "status": "included",
@@ -216,6 +248,10 @@
       {
         "encounter": "HG-E113",
         "date": "2026-01-22",
+        "possible_dates": [
+          "2026-01-22"
+        ],
+        "date_certain_in_window": true,
         "service_type": "group_therapy",
         "attendance": "attended",
         "status": "included",
@@ -236,6 +272,10 @@
       {
         "encounter": "HG-E115",
         "date": "2026-01-26",
+        "possible_dates": [
+          "2026-01-26"
+        ],
+        "date_certain_in_window": true,
         "service_type": "individual_therapy",
         "attendance": "attended",
         "status": "included",
@@ -257,6 +297,10 @@
       {
         "encounter": "HG-E118",
         "date": "2026-01-29",
+        "possible_dates": [
+          "2026-01-29"
+        ],
+        "date_certain_in_window": true,
         "service_type": "group_therapy",
         "attendance": "attended",
         "status": "included",
@@ -277,6 +321,10 @@
       {
         "encounter": "HG-E119",
         "date": "2026-01-30",
+        "possible_dates": [
+          "2026-01-30"
+        ],
+        "date_certain_in_window": true,
         "service_type": "family_therapy",
         "attendance": "attended",
         "status": "included",
@@ -298,6 +346,10 @@
       {
         "encounter": "HG-E103",
         "date": "2026-01-08",
+        "possible_dates": [
+          "2026-01-08"
+        ],
+        "date_certain_in_window": true,
         "service_type": "individual_therapy",
         "attendance": "no_show",
         "status": "excluded",
@@ -313,6 +365,10 @@
       {
         "encounter": "HG-E106",
         "date": "2026-01-13",
+        "possible_dates": [
+          "2026-01-13"
+        ],
+        "date_certain_in_window": true,
         "service_type": "medication_management",
         "attendance": "attended",
         "status": "excluded",
@@ -330,6 +386,10 @@
       {
         "encounter": "HG-E108",
         "date": "2026-01-15",
+        "possible_dates": [
+          "2026-01-15"
+        ],
+        "date_certain_in_window": true,
         "service_type": "group_therapy",
         "attendance": "cancelled_by_clinic",
         "status": "excluded",
@@ -345,6 +405,10 @@
       {
         "encounter": "HG-E109",
         "date": "2026-01-16",
+        "possible_dates": [
+          "2026-01-16"
+        ],
+        "date_certain_in_window": true,
         "service_type": "collateral_contact",
         "attendance": "patient_absent",
         "status": "excluded",
@@ -360,6 +424,10 @@
       {
         "encounter": "HG-E114",
         "date": "2026-01-23",
+        "possible_dates": [
+          "2026-01-23"
+        ],
+        "date_certain_in_window": true,
         "service_type": "care_coordination",
         "attendance": "patient_absent",
         "status": "excluded",
@@ -374,6 +442,10 @@
       {
         "encounter": "HG-E116",
         "date": "2026-01-27",
+        "possible_dates": [
+          "2026-01-27"
+        ],
+        "date_certain_in_window": true,
         "service_type": "group_therapy",
         "attendance": "no_show",
         "status": "excluded",
@@ -389,6 +461,10 @@
       {
         "encounter": "HG-E117",
         "date": "2026-01-28",
+        "possible_dates": [
+          "2026-01-28"
+        ],
+        "date_certain_in_window": true,
         "service_type": "individual_therapy",
         "attendance": "cancelled_by_patient",
         "status": "excluded",
@@ -403,6 +479,10 @@
       {
         "encounter": "HG-E120",
         "date": "2026-01-30",
+        "possible_dates": [
+          "2026-01-30"
+        ],
+        "date_certain_in_window": true,
         "service_type": "medication_management",
         "attendance": "attended",
         "status": "excluded",
@@ -462,6 +542,10 @@
           {
             "encounter": "HG-E101",
             "date": "2026-01-05",
+            "possible_dates": [
+              "2026-01-05"
+            ],
+            "date_certain_in_window": true,
             "service_type": "individual_therapy",
             "attendance": "attended",
             "status": "included",
@@ -482,6 +566,10 @@
           {
             "encounter": "HG-E102",
             "date": "2026-01-06",
+            "possible_dates": [
+              "2026-01-06"
+            ],
+            "date_certain_in_window": true,
             "service_type": "group_therapy",
             "attendance": "attended",
             "status": "included",
@@ -503,6 +591,10 @@
           {
             "encounter": "HG-E104",
             "date": "2026-01-09",
+            "possible_dates": [
+              "2026-01-09"
+            ],
+            "date_certain_in_window": true,
             "service_type": "family_therapy",
             "attendance": "attended",
             "status": "included",
@@ -542,6 +634,10 @@
           {
             "encounter": "HG-E105",
             "date": "2026-01-12",
+            "possible_dates": [
+              "2026-01-12"
+            ],
+            "date_certain_in_window": true,
             "service_type": "group_therapy",
             "attendance": "attended",
             "status": "included",
@@ -563,6 +659,10 @@
           {
             "encounter": "HG-E107",
             "date": "2026-01-14",
+            "possible_dates": [
+              "2026-01-14"
+            ],
+            "date_certain_in_window": true,
             "service_type": "individual_therapy",
             "attendance": "attended",
             "status": "included",
@@ -601,6 +701,10 @@
           {
             "encounter": "HG-E110",
             "date": "2026-01-19",
+            "possible_dates": [
+              "2026-01-19"
+            ],
+            "date_certain_in_window": true,
             "service_type": "group_therapy",
             "attendance": "attended",
             "status": "included",
@@ -623,6 +727,10 @@
           {
             "encounter": "HG-E111",
             "date": "2026-01-19",
+            "possible_dates": [
+              "2026-01-19"
+            ],
+            "date_certain_in_window": true,
             "service_type": "individual_therapy",
             "attendance": "attended",
             "status": "included",
@@ -642,6 +750,10 @@
           {
             "encounter": "HG-E112",
             "date": "2026-01-21",
+            "possible_dates": [
+              "2026-01-21"
+            ],
+            "date_certain_in_window": true,
             "service_type": "individual_therapy",
             "attendance": "attended",
             "status": "included",
@@ -661,6 +773,10 @@
           {
             "encounter": "HG-E113",
             "date": "2026-01-22",
+            "possible_dates": [
+              "2026-01-22"
+            ],
+            "date_certain_in_window": true,
             "service_type": "group_therapy",
             "attendance": "attended",
             "status": "included",
@@ -699,6 +815,10 @@
           {
             "encounter": "HG-E115",
             "date": "2026-01-26",
+            "possible_dates": [
+              "2026-01-26"
+            ],
+            "date_certain_in_window": true,
             "service_type": "individual_therapy",
             "attendance": "attended",
             "status": "included",
@@ -720,6 +840,10 @@
           {
             "encounter": "HG-E118",
             "date": "2026-01-29",
+            "possible_dates": [
+              "2026-01-29"
+            ],
+            "date_certain_in_window": true,
             "service_type": "group_therapy",
             "attendance": "attended",
             "status": "included",
@@ -740,6 +864,10 @@
           {
             "encounter": "HG-E119",
             "date": "2026-01-30",
+            "possible_dates": [
+              "2026-01-30"
+            ],
+            "date_certain_in_window": true,
             "service_type": "family_therapy",
             "attendance": "attended",
             "status": "included",
@@ -763,6 +891,10 @@
       {
         "encounter": "HG-E115",
         "date": "2026-01-26",
+        "possible_dates": [
+          "2026-01-26"
+        ],
+        "date_certain_in_window": true,
         "service_type": "individual_therapy",
         "attendance": "attended",
         "status": "included",
@@ -973,6 +1105,10 @@
           {
             "encounter": "HG-E110",
             "date": "2026-01-19",
+            "possible_dates": [
+              "2026-01-19"
+            ],
+            "date_certain_in_window": true,
             "service_type": "group_therapy",
             "attendance": "attended",
             "status": "included",
@@ -1081,7 +1217,7 @@
                 "assertion": 76,
                 "kind": "correction",
                 "role": "applied_correction",
-                "note": "applied to 2 claim(s)",
+                "note": "applied through a matching dated correction chain",
                 "source_status": "final",
                 "authored_on": "2026-01-20",
                 "value": {
@@ -1231,6 +1367,10 @@
           {
             "encounter": "HG-E111",
             "date": "2026-01-19",
+            "possible_dates": [
+              "2026-01-19"
+            ],
+            "date_certain_in_window": true,
             "service_type": "individual_therapy",
             "attendance": "attended",
             "status": "included",
@@ -1338,6 +1478,10 @@
           {
             "encounter": "HG-E112",
             "date": "2026-01-21",
+            "possible_dates": [
+              "2026-01-21"
+            ],
+            "date_certain_in_window": true,
             "service_type": "individual_therapy",
             "attendance": "attended",
             "status": "included",

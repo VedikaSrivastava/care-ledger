@@ -200,6 +200,7 @@ def persist_extraction(
                        [(plan_id, t) for t in set(p.eligible_service_types)])
         db.executemany("INSERT INTO plan_evidence(plan_id, evidence_id) VALUES (?, ?)",
                        [(plan_id, e) for e in w.evidence(p)])
+    db.execute("INSERT INTO extraction_seals(extraction_id) VALUES (?)", (extraction_id,))
     return extraction_id
 
 

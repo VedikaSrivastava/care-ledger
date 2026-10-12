@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from itertools import groupby, product
 
-POLICY_VERSION = "2026-10-11"
+POLICY_VERSION = "2026-10-12"
 ENCOUNTER_KINDS = ("encounter_detail", "attendance", "presence", "break", "correction", "charge")
 
 Span = tuple[str, str]
@@ -150,73 +150,65 @@ def _apply_corrections(
     corrections: list[EncounterClaim],
     members: dict[int, tuple[str, str | None]],
 ) -> tuple[list[dict[int, Span]], dict[int, list[str]]]:
-    """Apply unambiguous corrections; competing replacements become forked effective maps."""
+    """Follow dated correction edges, preserving forks and validating complete intervals.
+
+    Choices are shared across matching claims. Each edge retains its authorship
+    cutoff. Cycles or invalid combined endpoints leave duration unknown.
+    """
     original = {c.id: (c.starts_at, c.ends_at) for c in presence}
     notes: dict[int, list[str]] = defaultdict(list)
-
-    applicable: list[tuple[EncounterClaim, list[EncounterClaim], int]] = []
-    for corr in corrections:
-        index = 0 if corr.corrected_field == "presence_start" else 1
-        targets = [
-            p for p in presence
-            if original[p.id][index] == corr.replaced_value and p.authored_on <= corr.authored_on
-        ]
-        if not targets:
-            members[corr.id] = ("unmatched_correction", "no claim authored on or before it records the replaced time")
-            continue
-        trial = {}
-        for p in targets:
-            span = list(original[p.id])
-            span[index] = corr.replacement_value
-            trial[p.id] = (span[0], span[1])
-        if any(s >= e for s, e in trial.values()):
-            members[corr.id] = ("rejected", "correction would produce an empty presence interval")
-            continue
-        applicable.append((corr, targets, index))
-
-    groups: dict[tuple[str, str], list[tuple[EncounterClaim, list[EncounterClaim], int]]] = defaultdict(list)
-    for item in applicable:
-        corr = item[0]
-        groups[(corr.corrected_field, corr.replaced_value)].append(item)
-
-    base = dict(original)
-    conflict_options: list[list[tuple[str, list[EncounterClaim], int]]] = []
-    for items in groups.values():
-        replacements = sorted({corr.replacement_value for corr, _, _ in items})
-        targets = items[0][1]
-        index = items[0][2]
-        field = items[0][0].corrected_field
-        replaced = items[0][0].replaced_value
-        if len(replacements) == 1:
-            replacement = replacements[0]
-            for p in targets:
-                span = list(base[p.id])
-                span[index] = replacement
-                base[p.id] = (span[0], span[1])
-                notes[p.id].append(f"{field} {replaced[11:16]} -> {replacement[11:16]}")
-            for corr, _, _ in items:
-                members[corr.id] = ("applied_correction", f"applied to {len(targets)} claim(s)")
-        else:
-            for corr, _, _ in items:
-                members[corr.id] = (
-                    "disputed",
-                    "competing corrections disagree on the replacement; insertion order is not precedence",
-                )
-            conflict_options.append([(rep, targets, index) for rep in replacements])
-
-    if not conflict_options:
-        return [base], notes
-
+    groups = defaultdict(list)
+    for c in corrections:
+        groups[(c.corrected_field, c.replaced_value)].append(c)
+    keys = sorted(groups)
+    choices = [sorted({c.replacement_value for c in groups[k]}) for k in keys]
+    used, disputed = set(), set()
     maps = []
-    for combo in product(*conflict_options):
-        effective = dict(base)
-        for replacement, targets, index in combo:
-            for p in targets:
-                span = list(effective[p.id])
-                span[index] = replacement
-                effective[p.id] = (span[0], span[1])
-        maps.append(effective)
-    return maps, notes
+    invalid = False
+    for replacements in product(*choices):
+        selected = dict(zip(keys, replacements))
+        effective = {}
+        for p in presence:
+            span = list(original[p.id])
+            for index, field_name in enumerate(("presence_start", "presence_end")):
+                value, since, visited = span[index], p.authored_on, set()
+                while (field_name, value) in groups:
+                    key = (field_name, value)
+                    eligible = [c for c in groups[key] if c.authored_on >= since]
+                    if not eligible:
+                        break
+                    eligible_values = {c.replacement_value for c in eligible}
+                    replacement = next(iter(eligible_values)) if len(eligible_values) == 1 else selected[key]
+                    edges = [c for c in eligible if c.replacement_value == replacement]
+                    if not edges:
+                        break
+                    if value in visited or replacement in visited:
+                        invalid = True
+                        disputed.update(c.id for c in edges)
+                        break
+                    visited.add(value)
+                    used.update(c.id for c in edges)
+                    if len(eligible_values) > 1:
+                        disputed.update(c.id for c in eligible)
+                    note = f"{field_name} {value[11:16]} -> {replacement[11:16]}"
+                    if note not in notes[p.id]:
+                        notes[p.id].append(note)
+                    since = min(c.authored_on for c in edges)
+                    value = replacement
+                span[index] = value
+            if span[0] >= span[1]:
+                invalid = True
+            effective[p.id] = tuple(span)
+        if effective not in maps:
+            maps.append(effective)
+    for c in corrections:
+        if c.id in disputed or (invalid and c.id in used):
+            members[c.id] = ("disputed", "competing, cyclic, or jointly invalid correction chain")
+        elif c.id in used:
+            members[c.id] = ("applied_correction", "applied through a matching dated correction chain")
+        else:
+            members[c.id] = ("unmatched_correction", "no eligible claim or correction chain records the replaced time")
+    return ([] if invalid else maps), notes
 
 
 def resolve(claims: list[EncounterClaim]) -> Resolution:
@@ -266,7 +258,7 @@ def resolve(claims: list[EncounterClaim]) -> Resolution:
     alternatives: list[Alternative] = []
     if attendance_status == "established" and attendance != "attended":
         duration_status = "not_applicable"
-    elif not presence:
+    elif not presence or not effective_maps:
         duration_status = "unknown"
     else:
         seen: set[tuple[int, str]] = set()
@@ -319,6 +311,9 @@ def _load_claims(db: sqlite3.Connection, version: str) -> list[tuple[int, Encoun
 
 
 def reconcile(db: sqlite3.Connection, version: str) -> int:
+    if db.execute("SELECT 1 FROM extractions x WHERE version=? AND NOT EXISTS "
+                  "(SELECT 1 FROM extraction_seals s WHERE s.extraction_id=x.id)", (version,)).fetchone():
+        raise ValueError("unsealed extractions cannot be reconciled; rebuild from source")
     started = time.perf_counter()
     through = db.execute("SELECT max(id) FROM extractions WHERE version = ?", (version,)).fetchone()[0]
     if through is None:
@@ -352,4 +347,5 @@ def reconcile(db: sqlite3.Connection, version: str) -> int:
                 "INSERT INTO resolution_members(resolution_id, assertion_id, role, note) VALUES (?, ?, ?, ?)",
                 [(resolution_id, claim_id, role, note) for claim_id, (role, note) in r.members.items()],
             )
+        db.execute("INSERT INTO reconciliation_seals(run_id) VALUES (?)", (run_id,))
     return run_id

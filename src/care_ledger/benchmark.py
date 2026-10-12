@@ -6,7 +6,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from .extract import estimate_cost
+from .extract import estimate_cost, PRICING_SNAPSHOT, PRICING_PER_MILLION
 from .queries import current_run, run_query
 
 
@@ -29,6 +29,9 @@ def _extraction(db: sqlite3.Connection, version: str) -> dict:
     ends = [s + timedelta(milliseconds=c["elapsed_ms"]) for s, c in zip(starts, calls)]
     tokens = {k: sum(c[k] or 0 for c in calls)
               for k in ("input_tokens", "cached_input_tokens", "output_tokens", "reasoning_tokens")}
+    costs = [estimate_cost(c["model"], c["input_tokens"], c["cached_input_tokens"], c["output_tokens"])
+             for c in calls]
+    missing = sum(v is None for v in costs)
     return {
         "model_calls": len(calls),
         "failed_calls": sum(c["status"] == "failed" for c in calls),
@@ -36,11 +39,13 @@ def _extraction(db: sqlite3.Connection, version: str) -> dict:
         "wall_clock_s": round((max(ends) - min(starts)).total_seconds(), 1),
         "summed_call_s": round(sum(c["elapsed_ms"] for c in calls) / 1000, 1),
         "tokens": tokens,
-        "estimated_cost_usd": (
-            None if (cost := estimate_cost(
-                calls[0]["model"], tokens["input_tokens"], tokens["cached_input_tokens"], tokens["output_tokens"]
-            )) is None else round(cost, 4)
-        ),
+        "usage_missing_calls": sum(c["input_tokens"] is None or c["output_tokens"] is None for c in calls),
+        "tokens_are_known_subtotals": any(c[k] is None for c in calls for k in tokens),
+        "unpriced_calls": missing,
+        "estimated_cost_usd": None if missing else round(sum(costs), 6),
+        "known_cost_subtotal_usd": round(sum(v for v in costs if v is not None), 6),
+        "pricing_snapshot": PRICING_SNAPSHOT | {"rates_per_million": PRICING_PER_MILLION},
+        "sdk_retries": 0,
     }
 
 

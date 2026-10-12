@@ -1,0 +1,86 @@
+$ python -m pytest -q
+...............................................                          [100%]
+47 passed in 5.67s
+C:\Users\Vedika\AppData\Local\Programs\Python\Python312\Lib\site-packages\pytest_asyncio\plugin.py:217: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+
+$ python -m care_ledger.cli --db <run>\fixture.sqlite --version fixture ingest documents
+{
+  "added": 31,
+  "duplicates": 0
+}
+2026-10-11 23:49:13,165 INFO care_ledger ingest documents: added=31 duplicates=0
+
+$ python -m care_ledger.cli --db <run>\fixture.sqlite --version fixture load-fixtures
+{
+  "persisted": 31,
+  "skipped": 0,
+  "extraction_version": "fixture",
+  "documents": 31,
+  "document_sources": 31,
+  "extracted": 31,
+  "failed_model_calls": 0,
+  "assertions": 138,
+  "latest_reconciliation_run": 1,
+  "abstraction_current": true
+}
+2026-10-11 23:49:15,003 INFO care_ledger load-fixtures persisted=31 skipped=0 version=fixture
+2026-10-11 23:49:15,012 INFO care_ledger reconcile run=1
+
+$ python -m care_ledger.cli --db <run>\fixture.sqlite --version fixture report --out <run>
+2026-10-11 23:49:16,672 INFO care_ledger report written to <run>\answers.md
+
+$ python -m care_ledger.cli --db <run>\fixture.sqlite --version fixture benchmark --patient HG-M042 --start 2026-01-05 --end 2026-01-30 --date 2026-01-19 --date 2026-01-21 --out <run>\benchmark.json
+{
+  "measured_at": "2026-10-11T23:49:18-04:00",
+  "documents": {
+    "count": 31,
+    "bytes": 50137
+  },
+  "extraction": {
+    "model_calls": 0
+  },
+  "reconciliation_ms": 0.69,
+  "query_latency": {
+    "attendance": {
+      "runs": 30,
+      "median_ms": 0.35,
+      "p95_ms": 0.43,
+      "max_ms": 1.38
+    },
+    "minutes": {
+      "runs": 30,
+      "median_ms": 0.44,
+      "p95_ms": 0.45,
+      "max_ms": 0.48
+    },
+    "compliance_patient": {
+      "runs": 30,
+      "median_ms": 0.45,
+      "p95_ms": 0.55,
+      "max_ms": 0.63
+    },
+    "days": {
+      "runs": 30,
+      "median_ms": 0.44,
+      "p95_ms": 0.47,
+      "max_ms": 0.79
+    },
+    "progress": {
+      "runs": 30,
+      "median_ms": 0.22,
+      "p95_ms": 0.23,
+      "max_ms": 0.46
+    },
+    "compliance_collection": {
+      "runs": 30,
+      "median_ms": 0.44,
+      "p95_ms": 0.49,
+      "max_ms": 0.56
+    }
+  },
+  "database_bytes": 376832
+}
+2026-10-11 23:49:18,570 INFO care_ledger benchmark written to <run>\benchmark.json

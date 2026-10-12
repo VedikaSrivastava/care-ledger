@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from openai import OpenAI
+from openai.lib._pydantic import to_strict_json_schema
+from pydantic import ValidationError
 
 from .config import Settings
 from .models import ExtractionEnvelope
@@ -57,12 +59,13 @@ Z, or UTC offset in a time field.
 Use empty lists when the document contains no claims of a type.
 """
 
+PRICING_SNAPSHOT = {"date": "2026-10-11", "source": "https://developers.openai.com/api/docs/models/gpt-5.4-mini", "tier": "standard", "currency": "USD"}
 PRICING_PER_MILLION = {"gpt-5.4-mini": {"input": 0.75, "cached_input": 0.075, "output": 4.50}}
 
 
 def estimate_cost(model: str, input_tokens, cached_input_tokens, output_tokens) -> float | None:
     price = PRICING_PER_MILLION.get(model)
-    if price is None or input_tokens is None or output_tokens is None:
+    if price is None or input_tokens is None or output_tokens is None or cached_input_tokens is None:
         return None
     cached = cached_input_tokens or 0
     return ((input_tokens - cached) * price["input"] + cached * price["cached_input"]
@@ -90,28 +93,31 @@ def _call_model(client: OpenAI, settings: Settings, document_id: int, content: s
     started = time.perf_counter()
     result = CallResult(document_id, started_at, 0.0, None, None, None, {})
     try:
-        response = client.responses.parse(
+        response = client.responses.create(
             model=settings.model,
             reasoning={"effort": settings.reasoning_effort},
             input=messages,
-            text_format=ExtractionEnvelope,
+            text={"format": {"type": "json_schema", "name": "ExtractionEnvelope", "strict": True,
+                             "schema": to_strict_json_schema(ExtractionEnvelope)}},
             store=False,
+            service_tier="default",
         )
         result.request_id = getattr(response, "_request_id", None)
         result.output_text = response.output_text
         if response.usage:
             result.usage = {
                 "input_tokens": response.usage.input_tokens,
-                "cached_input_tokens": response.usage.input_tokens_details.cached_tokens,
+                "cached_input_tokens": getattr(response.usage.input_tokens_details, "cached_tokens", None),
                 "output_tokens": response.usage.output_tokens,
-                "reasoning_tokens": response.usage.output_tokens_details.reasoning_tokens,
+                "reasoning_tokens": getattr(response.usage.output_tokens_details, "reasoning_tokens", None),
             }
-        if response.output_parsed is None:
-            raise ValueError("model returned no structured output")
-        validate_evidence(content, response.output_parsed)
-        result.envelope = response.output_parsed
-    except EvidenceError as exc:
-        result.error = f"EvidenceError: {exc}"
+        if response.status != "completed":
+            raise ValueError(f"model response status: {response.status}")
+        parsed = ExtractionEnvelope.model_validate_json(response.output_text)
+        validate_evidence(content, parsed)
+        result.envelope = parsed
+    except (EvidenceError, ValidationError) as exc:
+        result.error = f"{type(exc).__name__}: {exc}"
         result.evidence_rejected = True
     except Exception as exc:  # recorded per document; the batch reports all failures
         result.error = f"{type(exc).__name__}: {exc}"
@@ -130,8 +136,8 @@ def _extract_document(client: OpenAI, settings: Settings, document_id: int, cont
             break
         messages = [*messages,
                     {"role": "assistant", "content": result.output_text},
-                    {"role": "user", "content": f"These evidence quotes failed validation: {result.error}. "
-                                                "Return the complete extraction again with every quote copied "
+                    {"role": "user", "content": f"The extraction failed validation: {result.error}. "
+                                                "Return the complete extraction with valid HH:MM clocks and every quote copied "
                                                 "verbatim and occurring exactly once in the document."}]
     return attempts
 
@@ -166,7 +172,7 @@ def extract_pending(db: sqlite3.Connection, settings: Settings, workers: int) ->
     failed: dict[int, str] = {}
     succeeded = 0
     if pending:
-        client = OpenAI(timeout=180.0, max_retries=2)
+        client = OpenAI(timeout=180.0, max_retries=0)
         with ThreadPoolExecutor(max_workers=workers) as pool:
             futures = [pool.submit(_extract_document, client, settings, d["id"], d["content"]) for d in pending]
             for future in as_completed(futures):

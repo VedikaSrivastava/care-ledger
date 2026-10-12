@@ -244,3 +244,54 @@ CREATE TABLE IF NOT EXISTS calculation_runs(
     elapsed_ms REAL NOT NULL CHECK (elapsed_ms >= 0),
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Sealed extractions and reconciliations reject additional child rows.
+CREATE TABLE IF NOT EXISTS extraction_seals(
+    extraction_id INTEGER PRIMARY KEY REFERENCES extractions(id)
+);
+CREATE TRIGGER IF NOT EXISTS seal_requires_evidence
+BEFORE INSERT ON extraction_seals
+WHEN EXISTS (SELECT 1 FROM assertions a WHERE a.extraction_id=NEW.extraction_id
+             AND NOT EXISTS (SELECT 1 FROM assertion_evidence e WHERE e.assertion_id=a.id))
+  OR EXISTS (SELECT 1 FROM plans p WHERE p.extraction_id=NEW.extraction_id
+             AND (NOT EXISTS (SELECT 1 FROM plan_evidence e WHERE e.plan_id=p.id)
+               OR NOT EXISTS (SELECT 1 FROM plan_services s WHERE s.plan_id=p.id)))
+BEGIN SELECT RAISE(ABORT, 'finalization requires evidence and plan services'); END;
+
+CREATE TRIGGER IF NOT EXISTS assertions_sealed BEFORE INSERT ON assertions
+WHEN EXISTS (SELECT 1 FROM extraction_seals WHERE extraction_id=NEW.extraction_id)
+BEGIN SELECT RAISE(ABORT, 'extraction is sealed'); END;
+
+CREATE TRIGGER IF NOT EXISTS plans_sealed BEFORE INSERT ON plans
+WHEN EXISTS (SELECT 1 FROM extraction_seals WHERE extraction_id=NEW.extraction_id)
+BEGIN SELECT RAISE(ABORT, 'extraction is sealed'); END;
+
+CREATE TRIGGER IF NOT EXISTS assertion_evidence_sealed BEFORE INSERT ON assertion_evidence
+WHEN EXISTS (SELECT 1 FROM extraction_seals WHERE extraction_id=(SELECT extraction_id FROM assertions WHERE id=NEW.assertion_id))
+BEGIN SELECT RAISE(ABORT, 'extraction is sealed'); END;
+
+CREATE TRIGGER IF NOT EXISTS plan_evidence_sealed BEFORE INSERT ON plan_evidence
+WHEN EXISTS (SELECT 1 FROM extraction_seals WHERE extraction_id=(SELECT extraction_id FROM plans WHERE id=NEW.plan_id))
+BEGIN SELECT RAISE(ABORT, 'extraction is sealed'); END;
+
+CREATE TRIGGER IF NOT EXISTS plan_services_sealed BEFORE INSERT ON plan_services
+WHEN EXISTS (SELECT 1 FROM extraction_seals WHERE extraction_id=(SELECT extraction_id FROM plans WHERE id=NEW.plan_id))
+BEGIN SELECT RAISE(ABORT, 'extraction is sealed'); END;
+
+CREATE TABLE IF NOT EXISTS reconciliation_seals(run_id INTEGER PRIMARY KEY REFERENCES reconciliation_runs(id));
+
+CREATE TRIGGER IF NOT EXISTS encounter_resolutions_sealed BEFORE INSERT ON encounter_resolutions
+WHEN EXISTS (SELECT 1 FROM reconciliation_seals WHERE run_id=NEW.run_id)
+BEGIN SELECT RAISE(ABORT, 'reconciliation is sealed'); END;
+
+CREATE TRIGGER IF NOT EXISTS resolution_members_sealed BEFORE INSERT ON resolution_members
+WHEN EXISTS (SELECT 1 FROM reconciliation_seals WHERE run_id=(SELECT run_id FROM encounter_resolutions WHERE id=NEW.resolution_id))
+BEGIN SELECT RAISE(ABORT, 'reconciliation is sealed'); END;
+
+CREATE TRIGGER IF NOT EXISTS duration_alternatives_sealed BEFORE INSERT ON duration_alternatives
+WHEN EXISTS (SELECT 1 FROM reconciliation_seals WHERE run_id=(SELECT run_id FROM encounter_resolutions WHERE id=NEW.resolution_id))
+BEGIN SELECT RAISE(ABORT, 'reconciliation is sealed'); END;
+
+CREATE TRIGGER IF NOT EXISTS alternative_assertions_sealed BEFORE INSERT ON alternative_assertions
+WHEN EXISTS (SELECT 1 FROM reconciliation_seals WHERE run_id=(SELECT r.run_id FROM duration_alternatives a JOIN encounter_resolutions r ON r.id=a.resolution_id WHERE a.id=NEW.alternative_id))
+BEGIN SELECT RAISE(ABORT, 'reconciliation is sealed'); END;
