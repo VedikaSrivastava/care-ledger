@@ -72,7 +72,7 @@ Reconciliation rules that matter for this corpus:
 - Assessments with the same source form identifier share one assessment; imports are additional sources. Results without a form identifier are not merged across documents.
 - If any ingested document has not been extracted, answers are marked provisional and definitive plan-compliance labels are withheld.
 
-Clock fields require `HH:MM`; offsets, ranges, and seconds are rejected rather than silently stripped. Schema or evidence failures receive one recorded repair attempt.
+Clock fields require `HH:MM`; offsets, ranges, and seconds are rejected rather than silently stripped. Calendar dates require `YYYY-MM-DD` with a four-digit year from 1900 through 2099, so a month-day stuffed into the year (`0122-01-22`) cannot disagree with `2026-01-22`. Schema, evidence, or omitted timed-break failures receive one recorded repair attempt.
 
 Extractions are sealed only after their assertions and plans have evidence. Sealed extractions and reconciliations reject additional child rows as well as updates/deletes. Older unsealed databases must be rebuilt from source for this prototype; migration support is outside this change.
 
@@ -106,11 +106,11 @@ The assignment overview describes multiple patients, inpatient care, and treatme
 
 ## Performance
 
-Fresh offline verification on the supplied 31 documents (50,137 bytes): all 47 tests pass. See the committed benchmark for fresh processing time, checkpointed database size, and query latency measured on this machine.
+Fresh offline verification on the supplied 31 documents (50,137 bytes): 52 tests pass. See the committed benchmark for fresh processing time, checkpointed database size, and query latency measured on this machine.
 
 Reproducible evidence: [database](artifacts/fixture.sqlite), [answers](artifacts/answers.json), [benchmark](artifacts/benchmark.json), and [execution log](artifacts/execution.log). `reconciliation_ms` measures resolution computation before persistence; `fresh_processing_wall_s` measures the complete fresh processing step through CLI exit.
 
-**Live verification is pending.** No API key was available for this revision. The earlier standalone live benchmark was removed because its database and answers were unavailable for independent verification. No live accuracy or cost claim is made for this revision; use the fresh live command above to produce that evidence.
+Live extraction of the same 31 documents (`gpt-5.4-mini`, reasoning `medium`, version `llm-v2`) matched those totals: 12 sessions, 11 days, 585–595 minutes, weekly minutes 140 / 120 / 180 / 145–155, the same four compliance results, and PHQ-9 scores 18, 14, and 10. The submitted run is [artifacts/live](artifacts/live): 31 model calls, 0 failures, 45.4 s of model time (47.7 s including ingest and reconcile), 71,023 input tokens (54,272 cached), 52,321 output tokens (35,528 reasoning), about $0.25.
 
 Cost estimates use a configured pricing snapshot dated 2026-10-11 ([pricing source](https://developers.openai.com/api/docs/models/gpt-5.4-mini)): $0.75 / $0.075 / $4.50 per million input / cached input / output tokens, standard tier. Rates are not fetched automatically; verify/update the snapshot before a live benchmark. Each call is priced separately. Missing usage or an unpriced model leaves total cost unknown, with a separately labeled known subtotal. Cached input is a subset of input; reasoning is a subset of output, so neither is charged twice. Usage is captured before local validation, and SDK retries are disabled so repair calls are individually recorded.
 

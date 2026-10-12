@@ -8,7 +8,18 @@ import pytest
 
 from care_ledger.db import ingest_directory, open_db
 from care_ledger.models import Interval, Patient
-from care_ledger.persist import AlreadyExtracted, EvidenceError, persist_extraction, persist_fixtures, fixture_envelope
+from care_ledger.persist import (
+    AlreadyExtracted,
+    CompletenessError,
+    EvidenceError,
+    disambiguate_evidence_quotes,
+    persist_extraction,
+    persist_fixtures,
+    fixture_envelope,
+    stated_break_clocks,
+    validate_evidence,
+    validate_stated_breaks,
+)
 from care_ledger.queries import StaleAbstraction, run_query
 from care_ledger.reconcile import EncounterClaim, resolve, reconcile
 
@@ -205,6 +216,23 @@ def test_local_clock_round_trip():
     assert Interval.model_validate_json(interval.model_dump_json()) == interval
 
 
+def test_month_day_stuffed_into_the_year_is_rejected():
+    from pydantic import ValidationError
+
+    from care_ledger.models import EncounterSection
+
+    payload = {
+        "encounter_id": "HG-E113", "service_date": "0122-01-22", "service_type": "group_therapy",
+        "source_status": "final", "authored_on": "2026-01-22",
+        "evidence_quotes": ["January 22 | HG-E113"],
+        "attendance": None, "patient_presence": [], "breaks": [], "charges": [],
+    }
+    with pytest.raises(ValidationError, match="1900"):
+        EncounterSection.model_validate(payload)
+    payload["service_date"] = "2026-01-22"
+    assert EncounterSection.model_validate(payload).service_date.isoformat() == "2026-01-22"
+
+
 def test_unlocatable_evidence_is_rejected_atomically(db):
     doc = document_id(db, "BH-D105_individual_2026-01-19.txt")
     bad = envelope({"observations": [{
@@ -215,6 +243,66 @@ def test_unlocatable_evidence_is_rejected_atomically(db):
         with db:
             persist_extraction(db, doc, bad, version="other", producer="test")
     assert db.execute("SELECT count(*) FROM extractions").fetchone()[0] == before
+
+
+def test_repeated_schedule_line_is_bound_to_encounter_region():
+    content = (DOCUMENTS / "BH-D107_group_activity_records_2026-01-22_and_29.txt").read_text(encoding="utf-8")
+    shared = "Scheduled group 10:00–11:30. Nontherapeutic break 10:45–11:00."
+    raw = envelope({
+        "encounters": [
+            {
+                "encounter_id": "HG-E113", "service_date": "2026-01-22", "service_type": "group_therapy",
+                "source_status": "final", "authored_on": "2026-01-22",
+                "evidence_quotes": ["January 22, 2026 | Encounter HG-E113"],
+                "attendance": None, "patient_presence": [], "charges": [],
+                "breaks": [{"start": "10:45", "end": "11:00", "evidence_quotes": [shared]}],
+            },
+            {
+                "encounter_id": "HG-E118", "service_date": "2026-01-29", "service_type": "group_therapy",
+                "source_status": "final", "authored_on": "2026-01-29",
+                "evidence_quotes": ["January 29, 2026 | Encounter HG-E118"],
+                "attendance": None, "patient_presence": [], "charges": [],
+                "breaks": [{"start": "10:45", "end": "11:00", "evidence_quotes": [shared]}],
+            },
+        ]
+    })
+    with pytest.raises(EvidenceError, match="occurs more than once"):
+        validate_evidence(content, raw)
+    fixed = disambiguate_evidence_quotes(content, raw)
+    validate_evidence(content, fixed)
+    assert "January 22, 2026" in fixed.encounters[0].breaks[0].evidence_quotes[0]
+    assert "January 29, 2026" in fixed.encounters[1].breaks[0].evidence_quotes[0]
+
+
+def test_stated_break_clocks_ignore_mentions_without_times():
+    for name in (
+        "early_group_attendance_roster.txt",
+        "BH-D102_original_attendance_2026-01-19.txt",
+        "BH-D108_final_attendance_and_cancellation_register.txt",
+        "intake_and_individual_jan05.txt",
+        "BH-D109_care_coordination_2026-01-23.txt",
+    ):
+        assert stated_break_clocks((DOCUMENTS / name).read_text(encoding="utf-8")) == []
+
+
+def test_fixture_claims_cover_stated_breaks():
+    for name, claims in GOLD.items():
+        content = (DOCUMENTS / name).read_text(encoding="utf-8")
+        validate_stated_breaks(content, fixture_envelope(PATIENT, claims))
+
+
+def test_omitted_group_break_is_rejected():
+    content = (DOCUMENTS / "group_facilitator_jan12.txt").read_text(encoding="utf-8")
+    missing = envelope({
+        "encounters": [{
+            "encounter_id": "HG-E105", "service_date": "2026-01-12", "service_type": "group_therapy",
+            "source_status": "final", "authored_on": "2026-01-12",
+            "evidence_quotes": ["Encounter HG-E105"],
+            "attendance": None, "patient_presence": [], "charges": [], "breaks": [],
+        }]
+    })
+    with pytest.raises(CompletenessError, match="10:40-10:55"):
+        validate_stated_breaks(content, missing)
 
 
 # --- database invariants ----------------------------------------------------

@@ -1,0 +1,3619 @@
+{
+  "DEV-01": {
+    "patient": "HG-M042",
+    "window": [
+      "2026-01-05",
+      "2026-01-30"
+    ],
+    "sessions": {
+      "min": 12,
+      "max": 12
+    },
+    "by_service_type": {
+      "family_therapy": {
+        "sessions": {
+          "min": 2,
+          "max": 2
+        },
+        "minutes": {
+          "min": 75,
+          "max": 75
+        }
+      },
+      "group_therapy": {
+        "sessions": {
+          "min": 5,
+          "max": 5
+        },
+        "minutes": {
+          "min": 300,
+          "max": 300
+        }
+      },
+      "individual_therapy": {
+        "sessions": {
+          "min": 5,
+          "max": 5
+        },
+        "minutes": {
+          "min": 210,
+          "max": 220
+        }
+      }
+    },
+    "distinct_therapy_days": {
+      "min": 11,
+      "max": 11
+    },
+    "minutes": {
+      "min": 585,
+      "max": 595
+    },
+    "included": [
+      {
+        "encounter": "HG-E101",
+        "date": "2026-01-05",
+        "possible_dates": [
+          "2026-01-05"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "individual_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 50,
+          "max": 50
+        },
+        "duration_status": "established",
+        "derivations": [
+          "09:00-09:50 (50) = 50 min"
+        ],
+        "documents": [
+          "early_appointment_status_export.txt",
+          "intake_and_individual_jan05.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E102",
+        "date": "2026-01-06",
+        "possible_dates": [
+          "2026-01-06"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "group_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 45,
+          "max": 45
+        },
+        "duration_status": "established",
+        "derivations": [
+          "10:15-11:15 (60) - breaks 10:45-11:00 (15) = 45 min"
+        ],
+        "documents": [
+          "early_appointment_status_export.txt",
+          "early_group_attendance_roster.txt",
+          "group_facilitator_jan06.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E104",
+        "date": "2026-01-09",
+        "possible_dates": [
+          "2026-01-09"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "family_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 45,
+          "max": 45
+        },
+        "duration_status": "established",
+        "derivations": [
+          "14:00-14:45 (45) = 45 min"
+        ],
+        "documents": [
+          "early_appointment_status_export.txt",
+          "family_cofacilitator_jan09.txt",
+          "family_primary_jan09.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E105",
+        "date": "2026-01-12",
+        "possible_dates": [
+          "2026-01-12"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "group_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 75,
+          "max": 75
+        },
+        "duration_status": "established",
+        "derivations": [
+          "10:00-11:30 (90) - breaks 10:40-10:55 (15) = 75 min"
+        ],
+        "documents": [
+          "early_appointment_status_export.txt",
+          "early_group_attendance_roster.txt",
+          "group_facilitator_jan12.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E107",
+        "date": "2026-01-14",
+        "possible_dates": [
+          "2026-01-14"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "individual_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 45,
+          "max": 45
+        },
+        "duration_status": "established",
+        "derivations": [
+          "11:00-11:45 (45) = 45 min"
+        ],
+        "documents": [
+          "early_appointment_status_export.txt",
+          "individual_therapy_jan14.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E110",
+        "date": "2026-01-19",
+        "possible_dates": [
+          "2026-01-19"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "group_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 60,
+          "max": 60
+        },
+        "duration_status": "corrected",
+        "derivations": [
+          "10:00-11:15 (75) - breaks 10:45-11:00 (15) = 60 min"
+        ],
+        "documents": [
+          "BH-D101_group_content_2026-01-19.txt",
+          "BH-D102_original_attendance_2026-01-19.txt",
+          "BH-D103_attendance_correction_2026-01-20.txt",
+          "BH-D104_resent_roster_received_2026-01-26.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E111",
+        "date": "2026-01-19",
+        "possible_dates": [
+          "2026-01-19"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "individual_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 30,
+          "max": 30
+        },
+        "duration_status": "established",
+        "derivations": [
+          "11:15-11:45 (30) = 30 min"
+        ],
+        "documents": [
+          "BH-D105_individual_2026-01-19.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E112",
+        "date": "2026-01-21",
+        "possible_dates": [
+          "2026-01-21"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "individual_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 45,
+          "max": 45
+        },
+        "duration_status": "established",
+        "derivations": [
+          "13:00-13:20 (20) + 13:30-13:55 (25) = 45 min"
+        ],
+        "documents": [
+          "BH-D106_telehealth_2026-01-21.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E113",
+        "date": "2026-01-22",
+        "possible_dates": [
+          "2026-01-22"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "group_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 45,
+          "max": 45
+        },
+        "duration_status": "established",
+        "derivations": [
+          "10:30-11:30 (60) - breaks 10:45-11:00 (15) = 45 min"
+        ],
+        "documents": [
+          "BH-D107_group_activity_records_2026-01-22_and_29.txt",
+          "BH-D108_final_attendance_and_cancellation_register.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E115",
+        "date": "2026-01-26",
+        "possible_dates": [
+          "2026-01-26"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "individual_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 40,
+          "max": 50
+        },
+        "duration_status": "disputed",
+        "derivations": [
+          "09:10-09:50 (40) = 40 min",
+          "09:00-09:50 (50) = 50 min"
+        ],
+        "documents": [
+          "BH-D110_individual_primary_record_2026-01-26.txt",
+          "BH-D111_individual_second_record_2026-01-26.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E118",
+        "date": "2026-01-29",
+        "possible_dates": [
+          "2026-01-29"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "group_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 75,
+          "max": 75
+        },
+        "duration_status": "established",
+        "derivations": [
+          "10:00-11:30 (90) - breaks 10:45-11:00 (15) = 75 min"
+        ],
+        "documents": [
+          "BH-D107_group_activity_records_2026-01-22_and_29.txt",
+          "BH-D108_final_attendance_and_cancellation_register.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E119",
+        "date": "2026-01-30",
+        "possible_dates": [
+          "2026-01-30"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "family_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 30,
+          "max": 30
+        },
+        "duration_status": "established",
+        "derivations": [
+          "13:15-13:45 (30) = 30 min"
+        ],
+        "documents": [
+          "BH-D113_family_therapy_2026-01-30.txt"
+        ]
+      }
+    ],
+    "excluded": [
+      {
+        "encounter": "HG-E103",
+        "date": "2026-01-08",
+        "possible_dates": [
+          "2026-01-08"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "individual_therapy",
+        "attendance": "no_show",
+        "status": "excluded",
+        "reason": "no show",
+        "minutes": null,
+        "duration_status": "not_applicable",
+        "derivations": [],
+        "documents": [
+          "early_appointment_status_export.txt",
+          "missed_visit_outreach_jan08.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E106",
+        "date": "2026-01-13",
+        "possible_dates": [
+          "2026-01-13"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "medication_management",
+        "attendance": "attended",
+        "status": "excluded",
+        "reason": "medication management is not an eligible therapy service",
+        "minutes": null,
+        "duration_status": "established",
+        "derivations": [
+          "09:00-09:25 (25) = 25 min"
+        ],
+        "documents": [
+          "early_appointment_status_export.txt",
+          "medication_review_jan13.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E108",
+        "date": "2026-01-15",
+        "possible_dates": [
+          "2026-01-15"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "group_therapy",
+        "attendance": "cancelled_by_clinic",
+        "status": "excluded",
+        "reason": "cancelled by clinic",
+        "minutes": null,
+        "duration_status": "not_applicable",
+        "derivations": [],
+        "documents": [
+          "early_appointment_status_export.txt",
+          "group_cancellation_notice_jan15.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E109",
+        "date": "2026-01-16",
+        "possible_dates": [
+          "2026-01-16"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "collateral_contact",
+        "attendance": "patient_absent",
+        "status": "excluded",
+        "reason": "collateral contact is not an eligible therapy service",
+        "minutes": null,
+        "duration_status": "not_applicable",
+        "derivations": [],
+        "documents": [
+          "early_appointment_status_export.txt",
+          "partner_collateral_jan16.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E114",
+        "date": "2026-01-23",
+        "possible_dates": [
+          "2026-01-23"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "care_coordination",
+        "attendance": "patient_absent",
+        "status": "excluded",
+        "reason": "care coordination is not an eligible therapy service",
+        "minutes": null,
+        "duration_status": "not_applicable",
+        "derivations": [],
+        "documents": [
+          "BH-D109_care_coordination_2026-01-23.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E116",
+        "date": "2026-01-27",
+        "possible_dates": [
+          "2026-01-27"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "group_therapy",
+        "attendance": "no_show",
+        "status": "excluded",
+        "reason": "no show",
+        "minutes": null,
+        "duration_status": "not_applicable",
+        "derivations": [],
+        "documents": [
+          "BH-D108_final_attendance_and_cancellation_register.txt",
+          "BH-D112_draft_note_and_charge_extract_2026-01-27.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E117",
+        "date": "2026-01-28",
+        "possible_dates": [
+          "2026-01-28"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "individual_therapy",
+        "attendance": "cancelled_by_patient",
+        "status": "excluded",
+        "reason": "cancelled by patient",
+        "minutes": null,
+        "duration_status": "not_applicable",
+        "derivations": [],
+        "documents": [
+          "BH-D108_final_attendance_and_cancellation_register.txt"
+        ]
+      },
+      {
+        "encounter": "HG-E120",
+        "date": "2026-01-30",
+        "possible_dates": [
+          "2026-01-30"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "medication_management",
+        "attendance": "attended",
+        "status": "excluded",
+        "reason": "medication management is not an eligible therapy service",
+        "minutes": null,
+        "duration_status": "established",
+        "derivations": [
+          "15:00-15:20 (20) = 20 min"
+        ],
+        "documents": [
+          "BH-D114_medication_management_2026-01-30.txt"
+        ]
+      }
+    ],
+    "undetermined": [],
+    "unplaced": [],
+    "abstraction": {
+      "reconciliation_run": 1,
+      "extraction_version": "llm-v2",
+      "documents_total": 31,
+      "documents_reconciled": 31,
+      "documents_not_extracted": 0,
+      "coverage_status": "complete"
+    }
+  },
+  "DEV-02": {
+    "patient": "HG-M042",
+    "window": [
+      "2026-01-05",
+      "2026-01-30"
+    ],
+    "minutes": {
+      "min": 585,
+      "max": 595
+    },
+    "hours": {
+      "min": 9.75,
+      "max": 9.92
+    },
+    "weeks": [
+      {
+        "week_of": "2026-01-05",
+        "period": [
+          "2026-01-05",
+          "2026-01-11"
+        ],
+        "partial_week": false,
+        "minutes": {
+          "min": 140,
+          "max": 140
+        },
+        "hours": {
+          "min": 2.33,
+          "max": 2.33
+        },
+        "encounters": [
+          {
+            "encounter": "HG-E101",
+            "date": "2026-01-05",
+            "possible_dates": [
+              "2026-01-05"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "individual_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 50,
+              "max": 50
+            },
+            "duration_status": "established",
+            "derivations": [
+              "09:00-09:50 (50) = 50 min"
+            ],
+            "documents": [
+              "early_appointment_status_export.txt",
+              "intake_and_individual_jan05.txt"
+            ]
+          },
+          {
+            "encounter": "HG-E102",
+            "date": "2026-01-06",
+            "possible_dates": [
+              "2026-01-06"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "group_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 45,
+              "max": 45
+            },
+            "duration_status": "established",
+            "derivations": [
+              "10:15-11:15 (60) - breaks 10:45-11:00 (15) = 45 min"
+            ],
+            "documents": [
+              "early_appointment_status_export.txt",
+              "early_group_attendance_roster.txt",
+              "group_facilitator_jan06.txt"
+            ]
+          },
+          {
+            "encounter": "HG-E104",
+            "date": "2026-01-09",
+            "possible_dates": [
+              "2026-01-09"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "family_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 45,
+              "max": 45
+            },
+            "duration_status": "established",
+            "derivations": [
+              "14:00-14:45 (45) = 45 min"
+            ],
+            "documents": [
+              "early_appointment_status_export.txt",
+              "family_cofacilitator_jan09.txt",
+              "family_primary_jan09.txt"
+            ]
+          }
+        ]
+      },
+      {
+        "week_of": "2026-01-12",
+        "period": [
+          "2026-01-12",
+          "2026-01-18"
+        ],
+        "partial_week": false,
+        "minutes": {
+          "min": 120,
+          "max": 120
+        },
+        "hours": {
+          "min": 2.0,
+          "max": 2.0
+        },
+        "encounters": [
+          {
+            "encounter": "HG-E105",
+            "date": "2026-01-12",
+            "possible_dates": [
+              "2026-01-12"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "group_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 75,
+              "max": 75
+            },
+            "duration_status": "established",
+            "derivations": [
+              "10:00-11:30 (90) - breaks 10:40-10:55 (15) = 75 min"
+            ],
+            "documents": [
+              "early_appointment_status_export.txt",
+              "early_group_attendance_roster.txt",
+              "group_facilitator_jan12.txt"
+            ]
+          },
+          {
+            "encounter": "HG-E107",
+            "date": "2026-01-14",
+            "possible_dates": [
+              "2026-01-14"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "individual_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 45,
+              "max": 45
+            },
+            "duration_status": "established",
+            "derivations": [
+              "11:00-11:45 (45) = 45 min"
+            ],
+            "documents": [
+              "early_appointment_status_export.txt",
+              "individual_therapy_jan14.txt"
+            ]
+          }
+        ]
+      },
+      {
+        "week_of": "2026-01-19",
+        "period": [
+          "2026-01-19",
+          "2026-01-25"
+        ],
+        "partial_week": false,
+        "minutes": {
+          "min": 180,
+          "max": 180
+        },
+        "hours": {
+          "min": 3.0,
+          "max": 3.0
+        },
+        "encounters": [
+          {
+            "encounter": "HG-E110",
+            "date": "2026-01-19",
+            "possible_dates": [
+              "2026-01-19"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "group_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 60,
+              "max": 60
+            },
+            "duration_status": "corrected",
+            "derivations": [
+              "10:00-11:15 (75) - breaks 10:45-11:00 (15) = 60 min"
+            ],
+            "documents": [
+              "BH-D101_group_content_2026-01-19.txt",
+              "BH-D102_original_attendance_2026-01-19.txt",
+              "BH-D103_attendance_correction_2026-01-20.txt",
+              "BH-D104_resent_roster_received_2026-01-26.txt"
+            ]
+          },
+          {
+            "encounter": "HG-E111",
+            "date": "2026-01-19",
+            "possible_dates": [
+              "2026-01-19"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "individual_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 30,
+              "max": 30
+            },
+            "duration_status": "established",
+            "derivations": [
+              "11:15-11:45 (30) = 30 min"
+            ],
+            "documents": [
+              "BH-D105_individual_2026-01-19.txt"
+            ]
+          },
+          {
+            "encounter": "HG-E112",
+            "date": "2026-01-21",
+            "possible_dates": [
+              "2026-01-21"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "individual_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 45,
+              "max": 45
+            },
+            "duration_status": "established",
+            "derivations": [
+              "13:00-13:20 (20) + 13:30-13:55 (25) = 45 min"
+            ],
+            "documents": [
+              "BH-D106_telehealth_2026-01-21.txt"
+            ]
+          },
+          {
+            "encounter": "HG-E113",
+            "date": "2026-01-22",
+            "possible_dates": [
+              "2026-01-22"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "group_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 45,
+              "max": 45
+            },
+            "duration_status": "established",
+            "derivations": [
+              "10:30-11:30 (60) - breaks 10:45-11:00 (15) = 45 min"
+            ],
+            "documents": [
+              "BH-D107_group_activity_records_2026-01-22_and_29.txt",
+              "BH-D108_final_attendance_and_cancellation_register.txt"
+            ]
+          }
+        ]
+      },
+      {
+        "week_of": "2026-01-26",
+        "period": [
+          "2026-01-26",
+          "2026-01-30"
+        ],
+        "partial_week": true,
+        "minutes": {
+          "min": 145,
+          "max": 155
+        },
+        "hours": {
+          "min": 2.42,
+          "max": 2.58
+        },
+        "encounters": [
+          {
+            "encounter": "HG-E115",
+            "date": "2026-01-26",
+            "possible_dates": [
+              "2026-01-26"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "individual_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 40,
+              "max": 50
+            },
+            "duration_status": "disputed",
+            "derivations": [
+              "09:10-09:50 (40) = 40 min",
+              "09:00-09:50 (50) = 50 min"
+            ],
+            "documents": [
+              "BH-D110_individual_primary_record_2026-01-26.txt",
+              "BH-D111_individual_second_record_2026-01-26.txt"
+            ]
+          },
+          {
+            "encounter": "HG-E118",
+            "date": "2026-01-29",
+            "possible_dates": [
+              "2026-01-29"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "group_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 75,
+              "max": 75
+            },
+            "duration_status": "established",
+            "derivations": [
+              "10:00-11:30 (90) - breaks 10:45-11:00 (15) = 75 min"
+            ],
+            "documents": [
+              "BH-D107_group_activity_records_2026-01-22_and_29.txt",
+              "BH-D108_final_attendance_and_cancellation_register.txt"
+            ]
+          },
+          {
+            "encounter": "HG-E119",
+            "date": "2026-01-30",
+            "possible_dates": [
+              "2026-01-30"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "family_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 30,
+              "max": 30
+            },
+            "duration_status": "established",
+            "derivations": [
+              "13:15-13:45 (30) = 30 min"
+            ],
+            "documents": [
+              "BH-D113_family_therapy_2026-01-30.txt"
+            ]
+          }
+        ]
+      }
+    ],
+    "unresolved": [
+      {
+        "encounter": "HG-E115",
+        "date": "2026-01-26",
+        "possible_dates": [
+          "2026-01-26"
+        ],
+        "date_certain_in_window": true,
+        "service_type": "individual_therapy",
+        "attendance": "attended",
+        "status": "included",
+        "reason": "patient attended eligible therapy",
+        "minutes": {
+          "min": 40,
+          "max": 50
+        },
+        "duration_status": "disputed",
+        "derivations": [
+          "09:10-09:50 (40) = 40 min",
+          "09:00-09:50 (50) = 50 min"
+        ],
+        "documents": [
+          "BH-D110_individual_primary_record_2026-01-26.txt",
+          "BH-D111_individual_second_record_2026-01-26.txt"
+        ]
+      }
+    ],
+    "abstraction": {
+      "reconciliation_run": 1,
+      "extraction_version": "llm-v2",
+      "documents_total": 31,
+      "documents_reconciled": 31,
+      "documents_not_extracted": 0,
+      "coverage_status": "complete"
+    }
+  },
+  "DEV-03": {
+    "window": [
+      "2026-01-05",
+      "2026-01-30"
+    ],
+    "patients": [
+      {
+        "patient": "HG-M042",
+        "name": "Rowan Mercer",
+        "plans": [
+          {
+            "start": "2026-01-05",
+            "end": "2026-01-30",
+            "min_days": 3,
+            "min_minutes": 150,
+            "services": [
+              "family_therapy",
+              "group_therapy",
+              "individual_therapy"
+            ],
+            "evidence": [
+              "Episode dates: 2026-01-05 through 2026-01-30",
+              "Local treatment participation goal: at least 3 therapy days and at least 150 minutes of patient-present therapy in each Monday\u2013Sunday week.",
+              "A therapy day is a calendar day on which Rowan participates in individual, group, or family psychotherapy.",
+              "Patient-present individual, group, and family therapy contribute to the minute goal."
+            ]
+          }
+        ],
+        "weeks": [
+          {
+            "week_of": "2026-01-05",
+            "period": [
+              "2026-01-05",
+              "2026-01-11"
+            ],
+            "partial_week": false,
+            "status": "not_met",
+            "goal": {
+              "min_days": 3,
+              "min_minutes": 150,
+              "services": [
+                "family_therapy",
+                "group_therapy",
+                "individual_therapy"
+              ]
+            },
+            "therapy_days": {
+              "min": 3,
+              "max": 3
+            },
+            "minutes": {
+              "min": 140,
+              "max": 140
+            },
+            "depends_on": []
+          },
+          {
+            "week_of": "2026-01-12",
+            "period": [
+              "2026-01-12",
+              "2026-01-18"
+            ],
+            "partial_week": false,
+            "status": "not_met",
+            "goal": {
+              "min_days": 3,
+              "min_minutes": 150,
+              "services": [
+                "family_therapy",
+                "group_therapy",
+                "individual_therapy"
+              ]
+            },
+            "therapy_days": {
+              "min": 2,
+              "max": 2
+            },
+            "minutes": {
+              "min": 120,
+              "max": 120
+            },
+            "depends_on": []
+          },
+          {
+            "week_of": "2026-01-19",
+            "period": [
+              "2026-01-19",
+              "2026-01-25"
+            ],
+            "partial_week": false,
+            "status": "met",
+            "goal": {
+              "min_days": 3,
+              "min_minutes": 150,
+              "services": [
+                "family_therapy",
+                "group_therapy",
+                "individual_therapy"
+              ]
+            },
+            "therapy_days": {
+              "min": 3,
+              "max": 3
+            },
+            "minutes": {
+              "min": 180,
+              "max": 180
+            },
+            "depends_on": []
+          },
+          {
+            "week_of": "2026-01-26",
+            "period": [
+              "2026-01-26",
+              "2026-01-30"
+            ],
+            "partial_week": true,
+            "status": "cannot_determine",
+            "goal": {
+              "min_days": 3,
+              "min_minutes": 150,
+              "services": [
+                "family_therapy",
+                "group_therapy",
+                "individual_therapy"
+              ]
+            },
+            "therapy_days": {
+              "min": 3,
+              "max": 3
+            },
+            "minutes": {
+              "min": 145,
+              "max": 155
+            },
+            "depends_on": [
+              "HG-E115"
+            ]
+          }
+        ],
+        "consecutive_weeks_below_goal": {
+          "definite": [
+            [
+              "2026-01-05",
+              "2026-01-12"
+            ]
+          ],
+          "depends_on_unresolved": []
+        }
+      }
+    ],
+    "patients_with_consecutive_weeks_below_goal": {
+      "definite": [
+        "HG-M042"
+      ],
+      "depends_on_unresolved": []
+    },
+    "abstraction": {
+      "reconciliation_run": 1,
+      "extraction_version": "llm-v2",
+      "documents_total": 31,
+      "documents_reconciled": 31,
+      "documents_not_extracted": 0,
+      "coverage_status": "complete"
+    }
+  },
+  "DEV-04": {
+    "patient": "HG-M042",
+    "days": [
+      {
+        "date": "2026-01-19",
+        "therapy_contacts": {
+          "min": 2,
+          "max": 2
+        },
+        "minutes": {
+          "min": 90,
+          "max": 90
+        },
+        "encounters": [
+          {
+            "encounter": "HG-E110",
+            "date": "2026-01-19",
+            "possible_dates": [
+              "2026-01-19"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "group_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 60,
+              "max": 60
+            },
+            "duration_status": "corrected",
+            "derivations": [
+              "10:00-11:15 (75) - breaks 10:45-11:00 (15) = 60 min"
+            ],
+            "documents": [
+              "BH-D101_group_content_2026-01-19.txt",
+              "BH-D102_original_attendance_2026-01-19.txt",
+              "BH-D103_attendance_correction_2026-01-20.txt",
+              "BH-D104_resent_roster_received_2026-01-26.txt"
+            ],
+            "claims": [
+              {
+                "assertion": 3,
+                "kind": "attendance",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "attendance": "attended"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D102_original_attendance_2026-01-19.txt",
+                    "chars": [
+                      296,
+                      364
+                    ],
+                    "quote": "Patient arrival: 10:00 | Patient departure: 11:30 | Status: Attended"
+                  }
+                ]
+              },
+              {
+                "assertion": 8,
+                "kind": "attendance",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "attendance": "attended"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D101_group_content_2026-01-19.txt",
+                    "chars": [
+                      855,
+                      967
+                    ],
+                    "quote": "Rowan initially followed the exercise and identified postponing a message to a supervisor as a familiar pattern."
+                  },
+                  {
+                    "document": "BH-D101_group_content_2026-01-19.txt",
+                    "chars": [
+                      968,
+                      1108
+                    ],
+                    "quote": "When discussion turned to returning to the workplace, Rowan became visibly tense and said the amount of discussion felt difficult to manage."
+                  }
+                ]
+              },
+              {
+                "assertion": 13,
+                "kind": "attendance",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "attendance": "attended"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D104_resent_roster_received_2026-01-26.txt",
+                    "chars": [
+                      789,
+                      857
+                    ],
+                    "quote": "Patient arrival: 10:00 | Patient departure: 11:30 | Status: Attended"
+                  }
+                ]
+              },
+              {
+                "assertion": 9,
+                "kind": "break",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "starts_at": "2026-01-19T10:45",
+                  "ends_at": "2026-01-19T11:00"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D101_group_content_2026-01-19.txt",
+                    "chars": [
+                      231,
+                      295
+                    ],
+                    "quote": "Scheduled group: 10:00\u201311:30. Nontherapeutic break: 10:45\u201311:00."
+                  }
+                ]
+              },
+              {
+                "assertion": 1,
+                "kind": "correction",
+                "role": "applied_correction",
+                "note": "applied through a matching dated correction chain",
+                "source_status": "final",
+                "authored_on": "2026-01-20",
+                "value": {
+                  "corrected_field": "presence_end",
+                  "replaced_value": "2026-01-19T11:30",
+                  "replacement_value": "2026-01-19T11:15"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D103_attendance_correction_2026-01-20.txt",
+                    "chars": [
+                      156,
+                      221
+                    ],
+                    "quote": "Applies to group encounter HG-E110, service date January 19, 2026"
+                  },
+                  {
+                    "document": "BH-D103_attendance_correction_2026-01-20.txt",
+                    "chars": [
+                      223,
+                      351
+                    ],
+                    "quote": "Correction: Patient departure for HG-E110 is 11:15, replacing the original roster value of 11:30. Patient arrival remains 10:00."
+                  },
+                  {
+                    "document": "BH-D103_attendance_correction_2026-01-20.txt",
+                    "chars": [
+                      1355,
+                      1419
+                    ],
+                    "quote": "Electronically signed: Leah Chen, LCSW | January 20, 2026, 08:42"
+                  }
+                ]
+              },
+              {
+                "assertion": 2,
+                "kind": "encounter_detail",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "service_date": "2026-01-19",
+                  "service_type": "group_therapy"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D102_original_attendance_2026-01-19.txt",
+                    "chars": [
+                      95,
+                      152
+                    ],
+                    "quote": "Service date: January 19, 2026 | Group encounter: HG-E110"
+                  },
+                  {
+                    "document": "BH-D102_original_attendance_2026-01-19.txt",
+                    "chars": [
+                      153,
+                      207
+                    ],
+                    "quote": "Patient: Rowan Mercer | DOB: 1991-04-12 | MRN: HG-M042"
+                  },
+                  {
+                    "document": "BH-D102_original_attendance_2026-01-19.txt",
+                    "chars": [
+                      400,
+                      464
+                    ],
+                    "quote": "This is the patient row from the facilitator's attendance sheet."
+                  }
+                ]
+              },
+              {
+                "assertion": 7,
+                "kind": "encounter_detail",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "service_date": "2026-01-19",
+                  "service_type": "group_therapy"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D101_group_content_2026-01-19.txt",
+                    "chars": [
+                      52,
+                      113
+                    ],
+                    "quote": "Skills group clinical record | Service date: January 19, 2026"
+                  },
+                  {
+                    "document": "BH-D101_group_content_2026-01-19.txt",
+                    "chars": [
+                      114,
+                      169
+                    ],
+                    "quote": "Group encounter: HG-E110 | Facilitator: Leah Chen, LCSW"
+                  },
+                  {
+                    "document": "BH-D101_group_content_2026-01-19.txt",
+                    "chars": [
+                      231,
+                      295
+                    ],
+                    "quote": "Scheduled group: 10:00\u201311:30. Nontherapeutic break: 10:45\u201311:00."
+                  }
+                ]
+              },
+              {
+                "assertion": 12,
+                "kind": "encounter_detail",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "service_date": "2026-01-19",
+                  "service_type": "group_therapy"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D104_resent_roster_received_2026-01-26.txt",
+                    "chars": [
+                      644,
+                      701
+                    ],
+                    "quote": "Service date: January 19, 2026 | Group encounter: HG-E110"
+                  },
+                  {
+                    "document": "BH-D104_resent_roster_received_2026-01-26.txt",
+                    "chars": [
+                      789,
+                      857
+                    ],
+                    "quote": "Patient arrival: 10:00 | Patient departure: 11:30 | Status: Attended"
+                  },
+                  {
+                    "document": "BH-D104_resent_roster_received_2026-01-26.txt",
+                    "chars": [
+                      858,
+                      919
+                    ],
+                    "quote": "Original signature: Leah Chen, LCSW | January 19, 2026, 12:14"
+                  },
+                  {
+                    "document": "BH-D104_resent_roster_received_2026-01-26.txt",
+                    "chars": [
+                      920,
+                      955
+                    ],
+                    "quote": "Original disposition: Final, signed"
+                  }
+                ]
+              },
+              {
+                "assertion": 4,
+                "kind": "presence",
+                "role": "corrected",
+                "note": "presence_end 11:30 -> 11:15",
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "starts_at": "2026-01-19T10:00",
+                  "ends_at": "2026-01-19T11:30"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D102_original_attendance_2026-01-19.txt",
+                    "chars": [
+                      296,
+                      364
+                    ],
+                    "quote": "Patient arrival: 10:00 | Patient departure: 11:30 | Status: Attended"
+                  }
+                ]
+              },
+              {
+                "assertion": 14,
+                "kind": "presence",
+                "role": "corrected",
+                "note": "presence_end 11:30 -> 11:15",
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "starts_at": "2026-01-19T10:00",
+                  "ends_at": "2026-01-19T11:30"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D104_resent_roster_received_2026-01-26.txt",
+                    "chars": [
+                      789,
+                      857
+                    ],
+                    "quote": "Patient arrival: 10:00 | Patient departure: 11:30 | Status: Attended"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "encounter": "HG-E111",
+            "date": "2026-01-19",
+            "possible_dates": [
+              "2026-01-19"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "individual_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 30,
+              "max": 30
+            },
+            "duration_status": "established",
+            "derivations": [
+              "11:15-11:45 (30) = 30 min"
+            ],
+            "documents": [
+              "BH-D105_individual_2026-01-19.txt"
+            ],
+            "claims": [
+              {
+                "assertion": 17,
+                "kind": "attendance",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "attendance": "attended"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D105_individual_2026-01-19.txt",
+                    "chars": [
+                      172,
+                      224
+                    ],
+                    "quote": "Patient contact: 11:15\u201311:45 | Completed: 30 minutes"
+                  }
+                ]
+              },
+              {
+                "assertion": 16,
+                "kind": "encounter_detail",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "service_date": "2026-01-19",
+                  "service_type": "individual_therapy"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D105_individual_2026-01-19.txt",
+                    "chars": [
+                      52,
+                      96
+                    ],
+                    "quote": "Individual psychotherapy | Encounter HG-E111"
+                  }
+                ]
+              },
+              {
+                "assertion": 18,
+                "kind": "presence",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-19",
+                "value": {
+                  "starts_at": "2026-01-19T11:15",
+                  "ends_at": "2026-01-19T11:45"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D105_individual_2026-01-19.txt",
+                    "chars": [
+                      172,
+                      224
+                    ],
+                    "quote": "Patient contact: 11:15\u201311:45 | Completed: 30 minutes"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "date": "2026-01-21",
+        "therapy_contacts": {
+          "min": 1,
+          "max": 1
+        },
+        "minutes": {
+          "min": 45,
+          "max": 45
+        },
+        "encounters": [
+          {
+            "encounter": "HG-E112",
+            "date": "2026-01-21",
+            "possible_dates": [
+              "2026-01-21"
+            ],
+            "date_certain_in_window": true,
+            "service_type": "individual_therapy",
+            "attendance": "attended",
+            "status": "included",
+            "reason": "patient attended eligible therapy",
+            "minutes": {
+              "min": 45,
+              "max": 45
+            },
+            "duration_status": "established",
+            "derivations": [
+              "13:00-13:20 (20) + 13:30-13:55 (25) = 45 min"
+            ],
+            "documents": [
+              "BH-D106_telehealth_2026-01-21.txt"
+            ],
+            "claims": [
+              {
+                "assertion": 25,
+                "kind": "attendance",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-21",
+                "value": {
+                  "attendance": "attended"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D106_telehealth_2026-01-21.txt",
+                    "chars": [
+                      221,
+                      274
+                    ],
+                    "quote": "Patient contact occurred 13:00\u201313:20 and 13:30\u201313:55."
+                  }
+                ]
+              },
+              {
+                "assertion": 28,
+                "kind": "break",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-21",
+                "value": {
+                  "starts_at": "2026-01-21T13:20",
+                  "ends_at": "2026-01-21T13:30"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D106_telehealth_2026-01-21.txt",
+                    "chars": [
+                      275,
+                      367
+                    ],
+                    "quote": "Connection was lost from 13:20\u201313:30; there was no therapeutic contact during that interval."
+                  }
+                ]
+              },
+              {
+                "assertion": 24,
+                "kind": "encounter_detail",
+                "role": "accepted",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-21",
+                "value": {
+                  "service_date": "2026-01-21",
+                  "service_type": "individual_therapy"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D106_telehealth_2026-01-21.txt",
+                    "chars": [
+                      52,
+                      118
+                    ],
+                    "quote": "Individual psychotherapy | Encounter HG-E112 | Appointment HG-A112"
+                  },
+                  {
+                    "document": "BH-D106_telehealth_2026-01-21.txt",
+                    "chars": [
+                      165,
+                      219
+                    ],
+                    "quote": "January 21, 2026 | Video | Clinician: Mira Patel, LCSW"
+                  }
+                ]
+              },
+              {
+                "assertion": 26,
+                "kind": "presence",
+                "role": "disputed",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-21",
+                "value": {
+                  "starts_at": "2026-01-21T13:00",
+                  "ends_at": "2026-01-21T13:20"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D106_telehealth_2026-01-21.txt",
+                    "chars": [
+                      221,
+                      257
+                    ],
+                    "quote": "Patient contact occurred 13:00\u201313:20"
+                  }
+                ]
+              },
+              {
+                "assertion": 27,
+                "kind": "presence",
+                "role": "disputed",
+                "note": null,
+                "source_status": "final",
+                "authored_on": "2026-01-21",
+                "value": {
+                  "starts_at": "2026-01-21T13:30",
+                  "ends_at": "2026-01-21T13:55"
+                },
+                "evidence": [
+                  {
+                    "document": "BH-D106_telehealth_2026-01-21.txt",
+                    "chars": [
+                      258,
+                      274
+                    ],
+                    "quote": "and 13:30\u201313:55."
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "abstraction": {
+      "reconciliation_run": 1,
+      "extraction_version": "llm-v2",
+      "documents_total": 31,
+      "documents_reconciled": 31,
+      "documents_not_extracted": 0,
+      "coverage_status": "complete"
+    }
+  },
+  "DEV-05": {
+    "patient": "HG-M042",
+    "window": [
+      "2026-01-05",
+      "2026-01-30"
+    ],
+    "assessments": [
+      {
+        "instrument": "PHQ-9",
+        "completed_on": "2026-01-05",
+        "form_id": null,
+        "sources": [
+          {
+            "score": 18,
+            "form_id": null,
+            "authored_on": "2026-01-05",
+            "evidence": [
+              {
+                "document": "intake_and_individual_jan05.txt",
+                "chars": [
+                  1394,
+                  1449
+                ],
+                "quote": "PHQ-9 completed by Rowan on 2026-01-05: total score 18."
+              }
+            ]
+          }
+        ],
+        "status": "established",
+        "score": 18,
+        "source_documents": 1
+      },
+      {
+        "instrument": "PHQ-9",
+        "completed_on": "2026-01-16",
+        "form_id": "HG-Q116",
+        "sources": [
+          {
+            "score": 14,
+            "form_id": "HG-Q116",
+            "authored_on": "2026-01-16",
+            "evidence": [
+              {
+                "document": "imported_measure_summary_received_jan26.txt",
+                "chars": [
+                  524,
+                  615
+                ],
+                "quote": "Measure | Result | Date completed | Source form\nPHQ-9   | 14     | 2026-01-16     | HG-Q116"
+              },
+              {
+                "document": "imported_measure_summary_received_jan26.txt",
+                "chars": [
+                  1120,
+                  1210
+                ],
+                "quote": "The source form identifier and original completion date were retained in the imported row."
+              }
+            ]
+          },
+          {
+            "score": 14,
+            "form_id": "HG-Q116",
+            "authored_on": "2026-01-16",
+            "evidence": [
+              {
+                "document": "symptom_measure_review_jan16.txt",
+                "chars": [
+                  191,
+                  238
+                ],
+                "quote": "Instrument: PHQ-9 | Patient portal form HG-Q116"
+              },
+              {
+                "document": "symptom_measure_review_jan16.txt",
+                "chars": [
+                  239,
+                  284
+                ],
+                "quote": "Completed by patient: 2026-01-16, 08:17 local"
+              },
+              {
+                "document": "symptom_measure_review_jan16.txt",
+                "chars": [
+                  285,
+                  300
+                ],
+                "quote": "Total score: 14"
+              }
+            ]
+          }
+        ],
+        "status": "established",
+        "score": 14,
+        "source_documents": 2
+      },
+      {
+        "instrument": "PHQ-9",
+        "completed_on": "2026-01-30",
+        "form_id": null,
+        "sources": [
+          {
+            "score": 10,
+            "form_id": null,
+            "authored_on": "2026-01-30",
+            "evidence": [
+              {
+                "document": "BH-D115_symptom_measure_review_2026-01-30.txt",
+                "chars": [
+                  137,
+                  212
+                ],
+                "quote": "Questionnaire completed January 30, 2026, 12:42\nPHQ-9 total: 10. Item 9: 0."
+              }
+            ]
+          }
+        ],
+        "status": "established",
+        "score": 10,
+        "source_documents": 1
+      }
+    ],
+    "trend": {
+      "PHQ-9": {
+        "points": [
+          {
+            "completed_on": "2026-01-05",
+            "score": 18
+          },
+          {
+            "completed_on": "2026-01-16",
+            "score": 14
+          },
+          {
+            "completed_on": "2026-01-30",
+            "score": 10
+          }
+        ],
+        "change_first_to_last": -8
+      }
+    },
+    "observations": [
+      {
+        "date": "2026-01-05",
+        "encounter": "HG-E101",
+        "category": "visit_reason",
+        "reporter": "patient",
+        "statement": "Several weeks of low mood, reduced interest in usual activities, fragmented sleep, and difficulty starting ordinary tasks.",
+        "evidence": [
+          {
+            "document": "intake_and_individual_jan05.txt",
+            "chars": [
+              378,
+              534
+            ],
+            "quote": "Reason for care: Rowan describes several weeks of low mood, reduced interest in usual activities, fragmented sleep, and difficulty beginning ordinary tasks."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-05",
+        "encounter": "HG-E101",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Returning to work after recent leave increases worry.",
+        "evidence": [
+          {
+            "document": "intake_and_individual_jan05.txt",
+            "chars": [
+              535,
+              610
+            ],
+            "quote": "Worry increases when thinking about returning to work after a recent leave."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-05",
+        "encounter": "HG-E101",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "They have been postponing email replies, avoiding conversations about the return date, and spending more time alone at home.",
+        "evidence": [
+          {
+            "document": "intake_and_individual_jan05.txt",
+            "chars": [
+              611,
+              735
+            ],
+            "quote": "Rowan has been postponing email replies, avoiding conversations about the return date, and spending more time alone at home."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-05",
+        "encounter": "HG-E101",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "Speech was clear and organized; affect was subdued but responsive, especially when discussing partner support.",
+        "evidence": [
+          {
+            "document": "intake_and_individual_jan05.txt",
+            "chars": [
+              991,
+              1109
+            ],
+            "quote": "Speech was clear and organized. Affect was subdued but responsive, especially when discussing their partner's support."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-05",
+        "encounter": "HG-E101",
+        "category": "safety",
+        "reporter": "clinician",
+        "statement": "No immediate safety concern was identified; they could discuss support contacts and ways to seek additional help if needed.",
+        "evidence": [
+          {
+            "document": "intake_and_individual_jan05.txt",
+            "chars": [
+              1240,
+              1392
+            ],
+            "quote": "No immediate safety concern was identified in today's assessment; Rowan was able to discuss support contacts and ways to seek additional help if needed."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-05",
+        "encounter": null,
+        "category": "visit_reason",
+        "reporter": "clinician",
+        "statement": "Depressed mood, sleep disruption, anxiety about resuming work responsibilities, and avoidance of tasks and communication.",
+        "evidence": [
+          {
+            "document": "signed_treatment_plan_jan05.txt",
+            "chars": [
+              355,
+              494
+            ],
+            "quote": "Presenting needs: depressed mood, sleep disruption, anxiety about resuming work responsibilities, and avoidance of tasks and communication."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-05",
+        "encounter": null,
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "Partner support is available, though repeated reminders sometimes increase tension.",
+        "evidence": [
+          {
+            "document": "signed_treatment_plan_jan05.txt",
+            "chars": [
+              576,
+              655
+            ],
+            "quote": "Partner support is available but repeated reminders sometimes increase tension."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-06",
+        "encounter": "HG-E102",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Delayed replying to a work message due to fear of being asked for a firm return date.",
+        "evidence": [
+          {
+            "document": "group_facilitator_jan06.txt",
+            "chars": [
+              1087,
+              1192
+            ],
+            "quote": "They described delaying a reply to a work message because they feared being asked for a firm return date."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-06",
+        "encounter": "HG-E102",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "Participation was relevant to the topic and they appeared receptive to peer suggestions.",
+        "evidence": [
+          {
+            "document": "group_facilitator_jan06.txt",
+            "chars": [
+              1319,
+              1414
+            ],
+            "quote": "Their participation was relevant to the topic, and they appeared receptive to peer suggestions."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-08",
+        "encounter": "HG-E103",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Rowan reported a poor night's sleep and said the morning got away from them.",
+        "evidence": [
+          {
+            "document": "missed_visit_outreach_jan08.txt",
+            "chars": [
+              840,
+              997
+            ],
+            "quote": "They said the morning had gotten away from them after a poor night of sleep and confirmed that they still intended to attend the next day's visit with Casey."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-09",
+        "encounter": "HG-E104",
+        "category": "visit_reason",
+        "reporter": "clinician",
+        "statement": "Visit focused on patterns of support at home while Rowan tried to rebuild a routine.",
+        "evidence": [
+          {
+            "document": "family_primary_jan09.txt",
+            "chars": [
+              437,
+              531
+            ],
+            "quote": "The appointment focused on patterns of support at home as Rowan attempts to rebuild a routine."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-09",
+        "encounter": "HG-E104",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Rowan felt watched when repeatedly asked whether they had contacted work.",
+        "evidence": [
+          {
+            "document": "family_primary_jan09.txt",
+            "chars": [
+              532,
+              618
+            ],
+            "quote": "Rowan described feeling watched when asked repeatedly whether they had contacted work."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-09",
+        "encounter": "HG-E104",
+        "category": "functioning",
+        "reporter": "collateral",
+        "statement": "Casey worried that giving Rowan space might leave them isolated.",
+        "evidence": [
+          {
+            "document": "family_primary_jan09.txt",
+            "chars": [
+              619,
+              691
+            ],
+            "quote": "Casey described worry that giving Rowan space might leave them isolated."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-09",
+        "encounter": "HG-E104",
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "Rowan remained present and engaged throughout the visit.",
+        "evidence": [
+          {
+            "document": "family_primary_jan09.txt",
+            "chars": [
+              1171,
+              1227
+            ],
+            "quote": "Rowan remained present and engaged throughout the visit."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-09",
+        "encounter": "HG-E104",
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "Rowan became more animated when describing a shared evening walk and identified it as support that did not feel like pressure.",
+        "evidence": [
+          {
+            "document": "family_primary_jan09.txt",
+            "chars": [
+              1228,
+              1355
+            ],
+            "quote": "They became more animated when describing a shared evening walk and identified this as support that did not feel like pressure."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-09",
+        "encounter": "HG-E104",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "Both acknowledged that their intentions differed from how the other person experienced the exchange.",
+        "evidence": [
+          {
+            "document": "family_primary_jan09.txt",
+            "chars": [
+              692,
+              804
+            ],
+            "quote": "Both were able to acknowledge that their intentions differed from how the other person experienced the exchange."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-10",
+        "encounter": "HG-E104",
+        "category": "visit_reason",
+        "reporter": "clinician",
+        "statement": "Family appointment focused on communication practice and observing reactions to slowing an anxious exchange.",
+        "evidence": [
+          {
+            "document": "family_cofacilitator_jan09.txt",
+            "chars": [
+              417,
+              625
+            ],
+            "quote": "Accompanying clinical entry for the family appointment facilitated with Mara Voss. My role was to assist with communication practice and observe how the couple responded when slowing down an anxious exchange."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-10",
+        "encounter": "HG-E104",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Rowan felt partner reminders meant they were falling behind.",
+        "evidence": [
+          {
+            "document": "family_cofacilitator_jan09.txt",
+            "chars": [
+              626,
+              712
+            ],
+            "quote": "Rowan initially described partner reminders as evidence that they were falling behind."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-10",
+        "encounter": "HG-E104",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Casey saw the reminders as intended to help, but said repeated prompts increased tension.",
+        "evidence": [
+          {
+            "document": "family_cofacilitator_jan09.txt",
+            "chars": [
+              713,
+              836
+            ],
+            "quote": "Casey explained that the reminders were an attempt to help, while also recognizing that repeated prompts increased tension."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-10",
+        "encounter": "HG-E104",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "The rehearsal became less defensive with repetition.",
+        "evidence": [
+          {
+            "document": "family_cofacilitator_jan09.txt",
+            "chars": [
+              1099,
+              1151
+            ],
+            "quote": "The rehearsal became less defensive with repetition."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-10",
+        "encounter": "HG-E104",
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "The couple generated ideas for a brief, predictable check-in.",
+        "evidence": [
+          {
+            "document": "family_cofacilitator_jan09.txt",
+            "chars": [
+              1152,
+              1222
+            ],
+            "quote": "Both participants contributed ideas for a brief, predictable check-in."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-10",
+        "encounter": "HG-E104",
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "The couple chose an evening walk as shared time that would not turn into a discussion of progress.",
+        "evidence": [
+          {
+            "document": "family_cofacilitator_jan09.txt",
+            "chars": [
+              1224,
+              1338
+            ],
+            "quote": "The couple selected an evening walk as an activity they could share without making it a discussion about progress."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-10",
+        "encounter": "HG-E104",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Rowan said the evening walk felt more acceptable than a lengthy review of unfinished tasks.",
+        "evidence": [
+          {
+            "document": "family_cofacilitator_jan09.txt",
+            "chars": [
+              1339,
+              1418
+            ],
+            "quote": "Rowan said this felt more acceptable than a lengthy review of unfinished tasks."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-12",
+        "encounter": "HG-E105",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "The patient described leaving work messages unopened as a coping example.",
+        "evidence": [
+          {
+            "document": "group_facilitator_jan12.txt",
+            "chars": [
+              906,
+              972
+            ],
+            "quote": "Rowan contributed an example about leaving work messages unopened."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-12",
+        "encounter": "HG-E105",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "The patient framed checking one message as a smaller step than answering all outstanding messages.",
+        "evidence": [
+          {
+            "document": "group_facilitator_jan12.txt",
+            "chars": [
+              973,
+              1071
+            ],
+            "quote": "They identified looking at one message as a lower step than replying to every outstanding message."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-12",
+        "encounter": "HG-E105",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "The patient said a weekend walk with Casey made the evening feel less dominated by worry.",
+        "evidence": [
+          {
+            "document": "group_facilitator_jan12.txt",
+            "chars": [
+              1072,
+              1200
+            ],
+            "quote": "They also described taking a walk with Casey over the weekend and noted that it helped the evening feel less dominated by worry."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-12",
+        "encounter": "HG-E105",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "The patient planned an action to try after breakfast and asked how to handle a bad morning.",
+        "evidence": [
+          {
+            "document": "group_facilitator_jan12.txt",
+            "chars": [
+              1201,
+              1333
+            ],
+            "quote": "During the planning exercise, Rowan wrote down an action to try after breakfast and asked how to respond if the morning went poorly."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-12",
+        "encounter": "HG-E105",
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "The patient listened to peers and gave another member a supportive comment.",
+        "evidence": [
+          {
+            "document": "group_facilitator_jan12.txt",
+            "chars": [
+              1424,
+              1499
+            ],
+            "quote": "Rowan listened to peers and offered a supportive comment to another member."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-13",
+        "encounter": "HG-E106",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Patient reported ongoing sleep interruption and daytime tiredness.",
+        "evidence": [
+          {
+            "document": "medication_review_jan13.txt",
+            "chars": [
+              507,
+              574
+            ],
+            "quote": "Rowan reported continuing sleep interruption and daytime tiredness."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-13",
+        "encounter": "HG-E106",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Patient said mood felt somewhat less heavy on days with a planned activity and that they remained concerned about work communication.",
+        "evidence": [
+          {
+            "document": "medication_review_jan13.txt",
+            "chars": [
+              575,
+              698
+            ],
+            "quote": "They described mood as somewhat less heavy on days with a planned activity but remained concerned about work communication."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-13",
+        "encounter": "HG-E106",
+        "category": "safety",
+        "reporter": "patient",
+        "statement": "Patient denied a new medication-related concern requiring urgent intervention.",
+        "evidence": [
+          {
+            "document": "medication_review_jan13.txt",
+            "chars": [
+              782,
+              858
+            ],
+            "quote": "Rowan denied a new medication-related concern requiring urgent intervention."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-13",
+        "encounter": "HG-E106",
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "Patient was attentive, asked questions about the monitoring plan, and could restate the next steps.",
+        "evidence": [
+          {
+            "document": "medication_review_jan13.txt",
+            "chars": [
+              1020,
+              1117
+            ],
+            "quote": "Rowan was attentive, asked questions about the monitoring plan, and could restate the next steps."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-13",
+        "encounter": "HG-E106",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "No new physical complaint was raised during this visit.",
+        "evidence": [
+          {
+            "document": "medication_review_jan13.txt",
+            "chars": [
+              1118,
+              1173
+            ],
+            "quote": "No new physical complaint was raised during this visit."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-13",
+        "encounter": "HG-E106",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "Ongoing depressive and anxiety symptoms with sleep disruption.",
+        "evidence": [
+          {
+            "document": "medication_review_jan13.txt",
+            "chars": [
+              1175,
+              1249
+            ],
+            "quote": "Assessment: ongoing depressive and anxiety symptoms with sleep disruption."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-13",
+        "encounter": "HG-E106",
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "Patient is engaged with the therapy program and intends to continue scheduled appointments.",
+        "evidence": [
+          {
+            "document": "medication_review_jan13.txt",
+            "chars": [
+              1250,
+              1343
+            ],
+            "quote": "Rowan is engaged with the therapy program and intends to continue the scheduled appointments."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-14",
+        "encounter": "HG-E107",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Patient completed several small activities, including opening a work message and taking two short walks.",
+        "evidence": [
+          {
+            "document": "individual_therapy_jan14.txt",
+            "chars": [
+              357,
+              508
+            ],
+            "quote": "Rowan reported completing several small activities since the prior individual appointment, including opening a work message and taking two short walks."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-14",
+        "encounter": "HG-E107",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Patient has not replied to the work message and continues to expect questions they cannot answer.",
+        "evidence": [
+          {
+            "document": "individual_therapy_jan14.txt",
+            "chars": [
+              509,
+              615
+            ],
+            "quote": "They have not yet replied to the message and continue to imagine being asked questions they cannot answer."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-14",
+        "encounter": "HG-E107",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "The family appointment felt helpful because the planned check-in with Casey reduced repeated reminders.",
+        "evidence": [
+          {
+            "document": "individual_therapy_jan14.txt",
+            "chars": [
+              616,
+              733
+            ],
+            "quote": "Rowan described the family appointment as helpful because the planned check-in with Casey reduced repeated reminders."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-14",
+        "encounter": "HG-E107",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Sleep remains interrupted and mornings still take effort to get started.",
+        "evidence": [
+          {
+            "document": "individual_therapy_jan14.txt",
+            "chars": [
+              734,
+              824
+            ],
+            "quote": "Sleep remains interrupted, and getting started in the morning continues to require effort."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-14",
+        "encounter": "HG-E107",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Patient noticed physical tension during the rehearsal but stayed with the task.",
+        "evidence": [
+          {
+            "document": "individual_therapy_jan14.txt",
+            "chars": [
+              1067,
+              1156
+            ],
+            "quote": "Rowan noticed physical tension during the rehearsal but was able to remain with the task."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-14",
+        "encounter": "HG-E107",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "The drafted message felt less overwhelming when framed as a brief acknowledgment rather than a full return-to-work solution.",
+        "evidence": [
+          {
+            "document": "individual_therapy_jan14.txt",
+            "chars": [
+              1157,
+              1269
+            ],
+            "quote": "They said the message seemed less overwhelming when it did not need to solve the entire return-to-work question."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-14",
+        "encounter": "HG-E107",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "Affect was more varied than at intake, with worry evident when discussing employment.",
+        "evidence": [
+          {
+            "document": "individual_therapy_jan14.txt",
+            "chars": [
+              1519,
+              1612
+            ],
+            "quote": "Affect was more varied than at intake, although worry was evident when discussing employment."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-16",
+        "encounter": null,
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "Some improvement in depressive symptoms, with ongoing avoidance of work communication and inconsistent sleep; continue current therapeutic focus and review practical functioning at the next direct appointment.",
+        "evidence": [
+          {
+            "document": "imported_measure_summary_received_jan26.txt",
+            "chars": [
+              617,
+              761
+            ],
+            "quote": "Source review excerpt, Mara Voss, LCSW: some improvement in depressive symptoms; ongoing avoidance of work communication and inconsistent sleep."
+          },
+          {
+            "document": "imported_measure_summary_received_jan26.txt",
+            "chars": [
+              762,
+              861
+            ],
+            "quote": "Continue current therapeutic focus and review practical functioning at the next direct appointment."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-16",
+        "encounter": null,
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Getting out of the apartment has become a little easier, but thinking about work still leads to procrastination.",
+        "evidence": [
+          {
+            "document": "symptom_measure_review_jan16.txt",
+            "chars": [
+              435,
+              611
+            ],
+            "quote": "In the optional update field, Rowan wrote that getting out of the apartment had become a little easier, while thinking about work continued to make them want to put things off."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-16",
+        "encounter": null,
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Sleep is inconsistent.",
+        "evidence": [
+          {
+            "document": "symptom_measure_review_jan16.txt",
+            "chars": [
+              612,
+              655
+            ],
+            "quote": "Rowan also described sleep as inconsistent."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-16",
+        "encounter": null,
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "There appears to be some improvement in depressive symptoms.",
+        "evidence": [
+          {
+            "document": "symptom_measure_review_jan16.txt",
+            "chars": [
+              717,
+              832
+            ],
+            "quote": "Clinician review: the score and recent individual-session material suggest some improvement in depressive symptoms."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-16",
+        "encounter": null,
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "Persistent avoidance, difficulty initiating work communication, and sleep disruption remain clinically relevant.",
+        "evidence": [
+          {
+            "document": "symptom_measure_review_jan16.txt",
+            "chars": [
+              833,
+              945
+            ],
+            "quote": "Persistent avoidance, difficulty initiating work communication, and sleep disruption remain clinically relevant."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-16",
+        "encounter": null,
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "They have tried small activities and communication practice but have not yet established a reliable routine.",
+        "evidence": [
+          {
+            "document": "symptom_measure_review_jan16.txt",
+            "chars": [
+              946,
+              1057
+            ],
+            "quote": "Rowan has attempted small activities and communication practice but has not yet established a reliable routine."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-16",
+        "encounter": "HG-E109",
+        "category": "visit_reason",
+        "reporter": "collateral",
+        "statement": "Collateral discussion focused on home observations and support for the treatment plan.",
+        "evidence": [
+          {
+            "document": "partner_collateral_jan16.txt",
+            "chars": [
+              560,
+              681
+            ],
+            "quote": "This was a collateral discussion with Casey only, focused on observations at home and ways to support the treatment plan."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-16",
+        "encounter": "HG-E109",
+        "category": "functioning",
+        "reporter": "collateral",
+        "statement": "Rowan had been getting out for short walks and seemed more willing to discuss the coming week.",
+        "evidence": [
+          {
+            "document": "partner_collateral_jan16.txt",
+            "chars": [
+              683,
+              797
+            ],
+            "quote": "Casey reported that Rowan had been getting out for short walks and seemed more willing to discuss the coming week."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-16",
+        "encounter": "HG-E109",
+        "category": "functioning",
+        "reporter": "collateral",
+        "statement": "Mornings remain difficult and Rowan becomes quiet when the conversation turns to work.",
+        "evidence": [
+          {
+            "document": "partner_collateral_jan16.txt",
+            "chars": [
+              798,
+              902
+            ],
+            "quote": "Mornings remain difficult, and Casey described Rowan becoming quiet when the conversation turns to work."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-16",
+        "encounter": "HG-E109",
+        "category": "functioning",
+        "reporter": "collateral",
+        "statement": "The scheduled evening check-in has reduced unplanned reminders.",
+        "evidence": [
+          {
+            "document": "partner_collateral_jan16.txt",
+            "chars": [
+              903,
+              966
+            ],
+            "quote": "The scheduled evening check-in has reduced unplanned reminders."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-16",
+        "encounter": "HG-E109",
+        "category": "functioning",
+        "reporter": "collateral",
+        "statement": "Casey has noticed less argument when asking what kind of help Rowan wants.",
+        "evidence": [
+          {
+            "document": "partner_collateral_jan16.txt",
+            "chars": [
+              978,
+              1104
+            ],
+            "quote": "it takes effort to resist offering multiple solutions but has noticed less argument when asking what kind of help Rowan wants."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-19",
+        "encounter": "HG-E110",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "The patient identified anxiety about reconnecting with work.",
+        "evidence": [
+          {
+            "document": "BH-D102_original_attendance_2026-01-19.txt",
+            "chars": [
+              723,
+              766
+            ],
+            "quote": "Rowan was present for the opening check-in."
+          },
+          {
+            "document": "BH-D102_original_attendance_2026-01-19.txt",
+            "chars": [
+              767,
+              860
+            ],
+            "quote": "The patient identified anxiety about reconnecting with work and accepted an exercise handout."
+          },
+          {
+            "document": "BH-D102_original_attendance_2026-01-19.txt",
+            "chars": [
+              861,
+              949
+            ],
+            "quote": "Staff arranged access to the individual clinician after Rowan requested additional help."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-19",
+        "encounter": "HG-E110",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Rowan requested additional help and staff arranged access to the individual clinician.",
+        "evidence": [
+          {
+            "document": "BH-D102_original_attendance_2026-01-19.txt",
+            "chars": [
+              861,
+              949
+            ],
+            "quote": "Staff arranged access to the individual clinician after Rowan requested additional help."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-19",
+        "encounter": "HG-E110",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "Rowan recognized a familiar avoidant pattern during the exercise.",
+        "evidence": [
+          {
+            "document": "BH-D101_group_content_2026-01-19.txt",
+            "chars": [
+              449,
+              522
+            ],
+            "quote": "The facilitator used a worked example involving an unanswered work email."
+          },
+          {
+            "document": "BH-D101_group_content_2026-01-19.txt",
+            "chars": [
+              855,
+              967
+            ],
+            "quote": "Rowan initially followed the exercise and identified postponing a message to a supervisor as a familiar pattern."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-19",
+        "encounter": "HG-E110",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Rowan said the amount of discussion felt difficult to manage and appeared tense when workplace return was discussed.",
+        "evidence": [
+          {
+            "document": "BH-D101_group_content_2026-01-19.txt",
+            "chars": [
+              968,
+              1108
+            ],
+            "quote": "When discussion turned to returning to the workplace, Rowan became visibly tense and said the amount of discussion felt difficult to manage."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-19",
+        "encounter": "HG-E110",
+        "category": "visit_reason",
+        "reporter": "clinician",
+        "statement": "requested additional help from the individual clinician",
+        "evidence": [
+          {
+            "document": "BH-D104_resent_roster_received_2026-01-26.txt",
+            "chars": [
+              957,
+              1166
+            ],
+            "quote": "Attachment remarks retained from original: Rowan attended the opening check-in, accepted the exercise handout, and requested additional help from the individual clinician. Group content is recorded separately."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-19",
+        "encounter": "HG-E111",
+        "category": "visit_reason",
+        "reporter": "clinician",
+        "statement": "The visit was added because Rowan became anxious during group and needed grounding and coping review.",
+        "evidence": [
+          {
+            "document": "BH-D105_individual_2026-01-19.txt",
+            "chars": [
+              254,
+              381
+            ],
+            "quote": "This visit was added because Rowan became anxious during group and needed individual grounding and review of coping strategies."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-19",
+        "encounter": "HG-E111",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Rowan felt overwhelmed by discussion of workplace demands and worried about managing work.",
+        "evidence": [
+          {
+            "document": "BH-D105_individual_2026-01-19.txt",
+            "chars": [
+              423,
+              584
+            ],
+            "quote": "The patient described feeling overwhelmed when other members discussed workplace demands and worried that returning to work would expose difficulties keeping up."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-19",
+        "encounter": "HG-E111",
+        "category": "symptom",
+        "reporter": "clinician",
+        "statement": "Rowan identified muscle tension, rapid breathing, and an urge to leave as early signs of activation.",
+        "evidence": [
+          {
+            "document": "BH-D105_individual_2026-01-19.txt",
+            "chars": [
+              585,
+              695
+            ],
+            "quote": "Rowan was able to identify muscle tension, rapid breathing, and an urge to leave as early signs of activation."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-19",
+        "encounter": "HG-E111",
+        "category": "safety",
+        "reporter": "clinician",
+        "statement": "Rowan denied current suicidal thoughts and no acute safety concern was identified.",
+        "evidence": [
+          {
+            "document": "BH-D105_individual_2026-01-19.txt",
+            "chars": [
+              1180,
+              1283
+            ],
+            "quote": "Rowan denied current suicidal thoughts and remained future oriented in discussing the next appointment."
+          },
+          {
+            "document": "BH-D105_individual_2026-01-19.txt",
+            "chars": [
+              1284,
+              1343
+            ],
+            "quote": "No acute safety concern was identified during this contact."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-19",
+        "encounter": "HG-E111",
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "Avoidance and disrupted sleep are interfering with returning to a usual work routine.",
+        "evidence": [
+          {
+            "document": "BH-D105_individual_2026-01-19.txt",
+            "chars": [
+              1344,
+              1442
+            ],
+            "quote": "Persistent avoidance and disrupted sleep continue to interfere with resuming a usual work routine."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-21",
+        "encounter": "HG-E112",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "The patient was drafting a message about a gradual return to work but did not send it.",
+        "evidence": [
+          {
+            "document": "BH-D106_telehealth_2026-01-21.txt",
+            "chars": [
+              509,
+              620
+            ],
+            "quote": "Rowan reported drafting a short message about a possible gradual return to work but stopping before sending it."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-21",
+        "encounter": "HG-E112",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Repeatedly checking the draft was delaying the task.",
+        "evidence": [
+          {
+            "document": "BH-D106_telehealth_2026-01-21.txt",
+            "chars": [
+              745,
+              840
+            ],
+            "quote": "The patient identified checking the draft repeatedly as another way the task was being delayed."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-21",
+        "encounter": "HG-E112",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "The session practiced reading the draft once and selecting a planned time to send it.",
+        "evidence": [
+          {
+            "document": "BH-D106_telehealth_2026-01-21.txt",
+            "chars": [
+              841,
+              913
+            ],
+            "quote": "Practiced reading the draft once and choosing a planned time to send it."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-21",
+        "encounter": "HG-E112",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "The patient described one night of improved sleep followed by a night of prolonged wakefulness.",
+        "evidence": [
+          {
+            "document": "BH-D106_telehealth_2026-01-21.txt",
+            "chars": [
+              1011,
+              1100
+            ],
+            "quote": "Rowan described one night of improved sleep followed by a night of prolonged wakefulness."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-21",
+        "encounter": "HG-E112",
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "The patient was engaged and able to restate the agreed task.",
+        "evidence": [
+          {
+            "document": "BH-D106_telehealth_2026-01-21.txt",
+            "chars": [
+              1163,
+              1217
+            ],
+            "quote": "Rowan was engaged and able to restate the agreed task."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-21",
+        "encounter": "HG-E112",
+        "category": "safety",
+        "reporter": "clinician",
+        "statement": "No urgent safety concern was reported.",
+        "evidence": [
+          {
+            "document": "BH-D106_telehealth_2026-01-21.txt",
+            "chars": [
+              1218,
+              1256
+            ],
+            "quote": "No urgent safety concern was reported."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-21",
+        "encounter": "HG-E112",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "Follow-up remains with the established outpatient team.",
+        "evidence": [
+          {
+            "document": "BH-D106_telehealth_2026-01-21.txt",
+            "chars": [
+              1257,
+              1312
+            ],
+            "quote": "Follow-up remains with the established outpatient team."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-22",
+        "encounter": "HG-E113",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Patient said seeing outstanding items on the work calendar would feel overwhelming.",
+        "evidence": [
+          {
+            "document": "BH-D107_group_activity_records_2026-01-22_and_29.txt",
+            "chars": [
+              614,
+              741
+            ],
+            "quote": "Rowan used opening a work calendar as an example and described concern that seeing outstanding items would become overwhelming."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-23",
+        "encounter": "HG-E114",
+        "category": "visit_reason",
+        "reporter": "collateral",
+        "statement": "Coordination focused on practical supports related to returning to work.",
+        "evidence": [
+          {
+            "document": "BH-D109_care_coordination_2026-01-23.txt",
+            "chars": [
+              297,
+              416
+            ],
+            "quote": "With the patient's existing release on file, discussed coordination of practical supports related to returning to work."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-23",
+        "encounter": "HG-E114",
+        "category": "functioning",
+        "reporter": "collateral",
+        "statement": "Rowan asked for help understanding whom to contact about a gradual return schedule.",
+        "evidence": [
+          {
+            "document": "BH-D109_care_coordination_2026-01-23.txt",
+            "chars": [
+              417,
+              544
+            ],
+            "quote": "The outside social worker reported that Rowan had asked for help understanding whom to contact about a gradual return schedule."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-26",
+        "encounter": "HG-E115",
+        "category": "visit_reason",
+        "reporter": "patient",
+        "statement": "Patient described messaging the supervisor and being asked to discuss possible next steps.",
+        "evidence": [
+          {
+            "document": "BH-D110_individual_primary_record_2026-01-26.txt",
+            "chars": [
+              305,
+              418
+            ],
+            "quote": "Rowan described sending a short message to the supervisor and receiving a request to discuss possible next steps."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-26",
+        "encounter": "HG-E115",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Sleep was uneven, with difficulty settling when work-related thoughts kept repeating at night.",
+        "evidence": [
+          {
+            "document": "BH-D110_individual_primary_record_2026-01-26.txt",
+            "chars": [
+              618,
+              721
+            ],
+            "quote": "Sleep remained uneven, with difficulty settling on nights when work-related thoughts became repetitive."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-26",
+        "encounter": "HG-E115",
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "Patient was attentive and collaborative but hesitant to complete the task outside the office.",
+        "evidence": [
+          {
+            "document": "BH-D110_individual_primary_record_2026-01-26.txt",
+            "chars": [
+              1154,
+              1267
+            ],
+            "quote": "The patient remained attentive and collaborative, although hesitant about completing the task outside the office."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-26",
+        "encounter": "HG-E115",
+        "category": "safety",
+        "reporter": "clinician",
+        "statement": "No current suicidal ideation was reported.",
+        "evidence": [
+          {
+            "document": "BH-D110_individual_primary_record_2026-01-26.txt",
+            "chars": [
+              1268,
+              1310
+            ],
+            "quote": "No current suicidal ideation was reported."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-26",
+        "encounter": "HG-E115",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Difficulty moving from a supervisor's reply to arranging the next conversation.",
+        "evidence": [
+          {
+            "document": "BH-D111_individual_second_record_2026-01-26.txt",
+            "chars": [
+              582,
+              677
+            ],
+            "quote": "Rowan discussed difficulty moving from a supervisor's reply to arranging the next conversation."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-26",
+        "encounter": "HG-E115",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Anticipated becoming overwhelmed if several work issues were raised at once.",
+        "evidence": [
+          {
+            "document": "BH-D111_individual_second_record_2026-01-26.txt",
+            "chars": [
+              678,
+              766
+            ],
+            "quote": "The patient anticipated becoming overwhelmed if several work issues were raised at once."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-26",
+        "encounter": "HG-E115",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Tends to keep editing a message after the essential point is already clear.",
+        "evidence": [
+          {
+            "document": "BH-D111_individual_second_record_2026-01-26.txt",
+            "chars": [
+              899,
+              997
+            ],
+            "quote": "Rowan recognized a tendency to keep editing a message after the essential point was already clear."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-26",
+        "encounter": "HG-E115",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Could use the cue during rehearsal but remained uncertain about using it independently when anxious.",
+        "evidence": [
+          {
+            "document": "BH-D111_individual_second_record_2026-01-26.txt",
+            "chars": [
+              1138,
+              1254
+            ],
+            "quote": "The patient could use the cue during the rehearsal but remained uncertain about using it independently when anxious."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-26",
+        "encounter": "HG-E115",
+        "category": "symptom",
+        "reporter": "clinician",
+        "statement": "Repetitive planning at night affected settling for sleep.",
+        "evidence": [
+          {
+            "document": "BH-D111_individual_second_record_2026-01-26.txt",
+            "chars": [
+              1255,
+              1346
+            ],
+            "quote": "The discussion also addressed how repetitive planning at night affected settling for sleep."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-26",
+        "encounter": "HG-E115",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "Ongoing anxiety, low mood, and functional difficulty around work demands.",
+        "evidence": [
+          {
+            "document": "BH-D111_individual_second_record_2026-01-26.txt",
+            "chars": [
+              1348,
+              1468
+            ],
+            "quote": "Clinical presentation remained consistent with ongoing anxiety, low mood, and functional difficulty around work demands."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-26",
+        "encounter": "HG-E115",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Was engaged with the treatment team and wished to resume a steadier routine.",
+        "evidence": [
+          {
+            "document": "BH-D111_individual_second_record_2026-01-26.txt",
+            "chars": [
+              1469,
+              1561
+            ],
+            "quote": "Rowan was engaged with the treatment team and described a wish to resume a steadier routine."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-29",
+        "encounter": "HG-E118",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Patient opened the work calendar but delayed a follow-up conversation.",
+        "evidence": [
+          {
+            "document": "BH-D107_group_activity_records_2026-01-22_and_29.txt",
+            "chars": [
+              1222,
+              1301
+            ],
+            "quote": "Rowan reported opening the work calendar but delaying a follow-up conversation."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-29",
+        "encounter": "HG-E118",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "Patient participated in paired rehearsal and accepted feedback to keep the request brief.",
+        "evidence": [
+          {
+            "document": "BH-D107_group_activity_records_2026-01-22_and_29.txt",
+            "chars": [
+              1418,
+              1515
+            ],
+            "quote": "Rowan participated in the paired rehearsal and accepted feedback about keeping the request brief."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": null,
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "The patient completed the questionnaire before the afternoon appointment.",
+        "evidence": [
+          {
+            "document": "BH-D115_symptom_measure_review_2026-01-30.txt",
+            "chars": [
+              214,
+              281
+            ],
+            "quote": "Rowan completed the questionnaire before the afternoon appointment."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": null,
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "The patient continued to report sleep difficulty, trouble sustaining usual activities, and fewer days of pervasive low mood than at intake.",
+        "evidence": [
+          {
+            "document": "BH-D115_symptom_measure_review_2026-01-30.txt",
+            "chars": [
+              282,
+              435
+            ],
+            "quote": "The patient continued to endorse sleep difficulty and trouble sustaining usual activities, with fewer days of pervasive low mood than reported at intake."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": null,
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "The clinician noted partial improvement with persistent avoidance and meaningful functional impact around returning to work.",
+        "evidence": [
+          {
+            "document": "BH-D115_symptom_measure_review_2026-01-30.txt",
+            "chars": [
+              540,
+              687
+            ],
+            "quote": "Clinician review, January 30: Rowan shows partial improvement, with persistent avoidance and meaningful functional impact around returning to work."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": null,
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "The patient has taken initial steps but still delays follow-up and becomes anxious when tasks expand beyond a narrowly defined action.",
+        "evidence": [
+          {
+            "document": "BH-D115_symptom_measure_review_2026-01-30.txt",
+            "chars": [
+              688,
+              878
+            ],
+            "quote": "The patient has taken some initial steps, including drafting and sending a message, but continues to delay follow-up and becomes anxious when a task expands beyond a narrowly defined action."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": null,
+        "category": "symptom",
+        "reporter": "clinician",
+        "statement": "Sleep disruption remains an intermittent barrier to a steadier daytime routine.",
+        "evidence": [
+          {
+            "document": "BH-D115_symptom_measure_review_2026-01-30.txt",
+            "chars": [
+              879,
+              971
+            ],
+            "quote": "Sleep disruption remains an intermittent barrier to establishing a steadier daytime routine."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": null,
+        "category": "functioning",
+        "reporter": "clinician",
+        "statement": "Family support may help the patient carry out agreed tasks between appointments.",
+        "evidence": [
+          {
+            "document": "BH-D115_symptom_measure_review_2026-01-30.txt",
+            "chars": [
+              1309,
+              1393
+            ],
+            "quote": "Family support may help the patient carry out the agreed tasks between appointments."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": "HG-E120",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Reported taking the medication as prescribed and no new adverse effect.",
+        "evidence": [
+          {
+            "document": "BH-D114_medication_management_2026-01-30.txt",
+            "chars": [
+              326,
+              419
+            ],
+            "quote": "Rowan reported taking the medication as prescribed and did not describe a new adverse effect."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": "HG-E120",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Mood was less persistently low than earlier in the month, but anxiety remained noticeable when anticipating contact with work.",
+        "evidence": [
+          {
+            "document": "BH-D114_medication_management_2026-01-30.txt",
+            "chars": [
+              420,
+              552
+            ],
+            "quote": "Mood felt less persistently low than earlier in the month, although anxiety remained noticeable when anticipating contact with work."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": "HG-E120",
+        "category": "symptom",
+        "reporter": "patient",
+        "statement": "Sleep remained variable.",
+        "evidence": [
+          {
+            "document": "BH-D114_medication_management_2026-01-30.txt",
+            "chars": [
+              553,
+              578
+            ],
+            "quote": "Sleep was still variable."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": "HG-E120",
+        "category": "clinical_assessment",
+        "reporter": "clinician",
+        "statement": "Alert, organized in conversation, and able to describe the follow-up plan.",
+        "evidence": [
+          {
+            "document": "BH-D114_medication_management_2026-01-30.txt",
+            "chars": [
+              670,
+              754
+            ],
+            "quote": "Rowan was alert, organized in conversation, and able to describe the follow-up plan."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": "HG-E120",
+        "category": "safety",
+        "reporter": "patient",
+        "statement": "Denied current suicidal thoughts.",
+        "evidence": [
+          {
+            "document": "BH-D114_medication_management_2026-01-30.txt",
+            "chars": [
+              755,
+              800
+            ],
+            "quote": "The patient denied current suicidal thoughts."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": "HG-E120",
+        "category": "safety",
+        "reporter": "clinician",
+        "statement": "No new acute safety issue emerged in this visit.",
+        "evidence": [
+          {
+            "document": "BH-D114_medication_management_2026-01-30.txt",
+            "chars": [
+              801,
+              849
+            ],
+            "quote": "No new acute safety issue emerged in this visit."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": "HG-E120",
+        "category": "visit_reason",
+        "reporter": "clinician",
+        "statement": "Medication evaluation and management with symptom review and medication counseling.",
+        "evidence": [
+          {
+            "document": "BH-D114_medication_management_2026-01-30.txt",
+            "chars": [
+              1074,
+              1188
+            ],
+            "quote": "The service consisted of medication evaluation and management, including symptom review and medication counseling."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": "HG-E119",
+        "category": "functioning",
+        "reporter": "collateral",
+        "statement": "Casey was unsure when reminders helped versus increased pressure for Rowan.",
+        "evidence": [
+          {
+            "document": "BH-D113_family_therapy_2026-01-30.txt",
+            "chars": [
+              407,
+              522
+            ],
+            "quote": "Casey described uncertainty about when reminders helped and when they seemed to increase Rowan's sense of pressure."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": "HG-E119",
+        "category": "symptom",
+        "reporter": "clinician",
+        "statement": "Rowan remained anxious about the work conversation but could explain the intended first step.",
+        "evidence": [
+          {
+            "document": "BH-D113_family_therapy_2026-01-30.txt",
+            "chars": [
+              1238,
+              1331
+            ],
+            "quote": "Rowan remained anxious about the work conversation but could explain the intended first step."
+          }
+        ]
+      },
+      {
+        "date": "2026-01-30",
+        "encounter": "HG-E119",
+        "category": "functioning",
+        "reporter": "patient",
+        "statement": "The patient said a limited plan felt more manageable.",
+        "evidence": [
+          {
+            "document": "BH-D113_family_therapy_2026-01-30.txt",
+            "chars": [
+              1332,
+              1401
+            ],
+            "quote": "The patient reported that having a limited plan felt more manageable."
+          }
+        ]
+      }
+    ],
+    "limits": [
+      "Assessments with the same source form identifier and completion date are one assessment; imported copies are additional sources. Distinct form identifiers are distinct assessments. Results without a form identifier are not merged across documents.",
+      "Scores and observations are reported as documented and attributed to their reporter; remission, recovery, work readiness, and treatment causation are not inferred."
+    ],
+    "abstraction": {
+      "reconciliation_run": 1,
+      "extraction_version": "llm-v2",
+      "documents_total": 31,
+      "documents_reconciled": 31,
+      "documents_not_extracted": 0,
+      "coverage_status": "complete"
+    }
+  }
+}

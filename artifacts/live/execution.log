@@ -1,0 +1,177 @@
+$ python -m pytest -q
+....................................................                     [100%]
+52 passed in 6.58s
+C:\Users\Vedika\AppData\Local\Programs\Python\Python312\Lib\site-packages\pytest_asyncio\plugin.py:217: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+
+$ python -m care_ledger.cli --db <run>\live.sqlite --version llm-v2 ingest documents
+{
+  "added": 31,
+  "duplicates": 0
+}
+2026-10-12 00:33:22,238 INFO care_ledger ingest documents: added=31 duplicates=0
+
+$ python -m care_ledger.cli --db <run>\live.sqlite --version llm-v2 extract
+{
+  "extraction_version": "llm-v2",
+  "documents": 31,
+  "document_sources": 31,
+  "extracted": 31,
+  "failed_model_calls": 0,
+  "assertions": 207,
+  "latest_reconciliation_run": 1,
+  "abstraction_current": true
+}
+2026-10-12 00:33:26,981 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:27,036 INFO care_ledger.extract document 3 extracted in 3.7s
+2026-10-12 00:33:29,482 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:29,609 INFO care_ledger.extract document 2 extracted in 6.2s
+2026-10-12 00:33:29,652 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:29,748 INFO care_ledger.extract document 1 extracted in 6.4s
+2026-10-12 00:33:31,954 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:32,053 INFO care_ledger.extract document 4 extracted in 8.7s
+2026-10-12 00:33:32,223 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:32,275 INFO care_ledger.extract document 5 extracted in 8.9s
+2026-10-12 00:33:35,200 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:35,410 INFO care_ledger.extract document 6 extracted in 12.1s
+2026-10-12 00:33:35,856 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:35,905 INFO care_ledger.extract document 9 extracted in 8.8s
+2026-10-12 00:33:36,198 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:36,233 INFO care_ledger.extract document 7 extracted in 12.9s
+2026-10-12 00:33:37,364 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:37,485 INFO care_ledger.extract document 10 extracted in 7.9s
+2026-10-12 00:33:37,950 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:38,006 INFO care_ledger.extract document 11 extracted in 8.2s
+2026-10-12 00:33:39,915 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:40,050 INFO care_ledger.extract document 8 extracted in 16.7s
+2026-10-12 00:33:42,106 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:42,222 INFO care_ledger.extract document 15 extracted in 6.3s
+2026-10-12 00:33:42,882 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:42,963 INFO care_ledger.extract document 14 extracted in 7.6s
+2026-10-12 00:33:43,033 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:43,176 INFO care_ledger.extract document 13 extracted in 10.9s
+2026-10-12 00:33:46,028 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:46,092 INFO care_ledger.extract document 20 extracted in 3.9s
+2026-10-12 00:33:46,194 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:46,324 INFO care_ledger.extract document 12 extracted in 14.2s
+2026-10-12 00:33:47,732 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:47,865 INFO care_ledger.extract document 21 extracted in 4.9s
+2026-10-12 00:33:53,213 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:53,271 INFO care_ledger.extract document 24 extracted in 7.0s
+2026-10-12 00:33:53,682 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:53,703 INFO care_ledger.extract document 19 extracted in 13.7s
+2026-10-12 00:33:54,002 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:54,076 INFO care_ledger.extract document 22 extracted in 10.9s
+2026-10-12 00:33:54,547 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:54,816 INFO care_ledger.extract document 18 extracted in 16.7s
+2026-10-12 00:33:55,078 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:55,217 INFO care_ledger.extract document 17 extracted in 17.7s
+2026-10-12 00:33:59,113 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:33:59,145 INFO care_ledger.extract document 28 extracted in 5.1s
+2026-10-12 00:34:00,667 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:34:00,667 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:34:00,788 INFO care_ledger.extract document 27 extracted in 7.1s
+2026-10-12 00:34:00,788 INFO care_ledger.extract document 23 extracted in 14.7s
+2026-10-12 00:34:01,974 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:34:02,099 INFO care_ledger.extract document 16 extracted in 25.9s
+2026-10-12 00:34:02,787 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:34:02,868 INFO care_ledger.extract document 26 extracted in 9.6s
+2026-10-12 00:34:07,216 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:34:07,277 INFO care_ledger.extract document 25 extracted in 19.4s
+2026-10-12 00:34:08,119 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:34:08,143 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:34:08,187 INFO care_ledger.extract document 31 extracted in 9.1s
+2026-10-12 00:34:08,217 INFO care_ledger.extract document 29 extracted in 13.6s
+2026-10-12 00:34:08,742 INFO httpx HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2026-10-12 00:34:08,754 INFO care_ledger.extract document 30 extracted in 13.6s
+2026-10-12 00:34:08,754 INFO care_ledger extract version=llm-v2 model=gpt-5.4-mini effort=medium pending=31 succeeded=31 failed=0 elapsed=45.6s
+2026-10-12 00:34:08,754 INFO care_ledger reconcile run=1
+
+$ python -m care_ledger.cli --db <run>\live.sqlite --version llm-v2 report --out <run>
+2026-10-12 00:34:10,272 INFO care_ledger report written to <run>\answers.md
+
+$ python -m care_ledger.cli --db <run>\live.sqlite --version llm-v2 benchmark --patient HG-M042 --start 2026-01-05 --end 2026-01-30 --date 2026-01-19 --date 2026-01-21 --out <run>\benchmark.json
+{
+  "measured_at": "2026-10-12T00:34:11-04:00",
+  "documents": {
+    "count": 31,
+    "bytes": 50137
+  },
+  "extraction": {
+    "model_calls": 31,
+    "failed_calls": 0,
+    "models": [
+      "gpt-5.4-mini (reasoning medium)"
+    ],
+    "wall_clock_s": 45.4,
+    "summed_call_s": 332.4,
+    "tokens": {
+      "input_tokens": 71023,
+      "cached_input_tokens": 54272,
+      "output_tokens": 52321,
+      "reasoning_tokens": 35528
+    },
+    "usage_missing_calls": 0,
+    "tokens_are_known_subtotals": false,
+    "unpriced_calls": 0,
+    "estimated_cost_usd": 0.252078,
+    "known_cost_subtotal_usd": 0.252078,
+    "pricing_snapshot": {
+      "date": "2026-10-11",
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.4-mini",
+      "tier": "standard",
+      "currency": "USD",
+      "rates_per_million": {
+        "gpt-5.4-mini": {
+          "input": 0.75,
+          "cached_input": 0.075,
+          "output": 4.5
+        }
+      }
+    },
+    "sdk_retries": 0
+  },
+  "reconciliation_ms": 2.45,
+  "query_latency": {
+    "attendance": {
+      "runs": 30,
+      "median_ms": 0.36,
+      "p95_ms": 0.49,
+      "max_ms": 1.51
+    },
+    "minutes": {
+      "runs": 30,
+      "median_ms": 0.45,
+      "p95_ms": 0.58,
+      "max_ms": 0.77
+    },
+    "compliance_patient": {
+      "runs": 30,
+      "median_ms": 0.46,
+      "p95_ms": 0.59,
+      "max_ms": 1.1
+    },
+    "days": {
+      "runs": 30,
+      "median_ms": 0.48,
+      "p95_ms": 0.72,
+      "max_ms": 0.82
+    },
+    "progress": {
+      "runs": 30,
+      "median_ms": 0.49,
+      "p95_ms": 0.55,
+      "max_ms": 0.93
+    },
+    "compliance_collection": {
+      "runs": 30,
+      "median_ms": 0.46,
+      "p95_ms": 0.58,
+      "max_ms": 0.66
+    }
+  },
+  "database_bytes": 479232
+}
+2026-10-12 00:34:11,575 INFO care_ledger benchmark written to <run>\benchmark.json

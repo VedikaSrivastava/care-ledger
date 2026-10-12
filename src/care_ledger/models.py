@@ -26,6 +26,36 @@ Clock = Annotated[time, BeforeValidator(_local_clock),
                   PlainSerializer(lambda v: v.isoformat(timespec="minutes"), return_type=str),
                   WithJsonSchema({"type": "string", "pattern": r"^([01][0-9]|2[0-3]):[0-5][0-9]$"})]
 
+_ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+
+def _clinical_date(value: object) -> date:
+    """Require a real calendar date. Year 0122 is not January 22."""
+    if isinstance(value, date):
+        parsed = value
+    elif isinstance(value, str) and _ISO_DATE.fullmatch(value):
+        try:
+            parsed = date.fromisoformat(value)
+        except ValueError as exc:
+            raise ValueError(f"expected YYYY-MM-DD, got {value!r}") from exc
+    else:
+        raise ValueError(f"expected YYYY-MM-DD, got {value!r}")
+    if not 1900 <= parsed.year <= 2099:
+        raise ValueError(
+            f"expected a four-digit year from 1900 through 2099, got {parsed.isoformat()}; "
+            "use the year stated in the document, not the month or day"
+        )
+    return parsed
+
+
+ClinicalDate = Annotated[
+    date,
+    BeforeValidator(_clinical_date),
+    PlainSerializer(lambda v: v.isoformat(), return_type=str),
+    WithJsonSchema({"type": "string", "format": "date",
+                     "pattern": r"^(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$"}),
+]
+
 
 class ServiceType(StrEnum):
     INDIVIDUAL_THERAPY = "individual_therapy"
@@ -89,7 +119,7 @@ class Patient(BaseModel):
     model_config = ConfigDict(extra="forbid")
     mrn: str
     name: str
-    birth_date: date | None
+    birth_date: ClinicalDate | None
 
 
 class AttendanceClaim(Claim):
@@ -115,10 +145,10 @@ class EncounterSection(Claim):
     """Claims about one encounter from one section of a document; evidence_quotes support the identity, date and type."""
 
     encounter_id: str
-    service_date: date
+    service_date: ClinicalDate
     service_type: ServiceType
     source_status: SourceStatus
-    authored_on: date
+    authored_on: ClinicalDate
     attendance: AttendanceClaim | None
     patient_presence: list[Interval]
     breaks: list[Interval]
@@ -127,12 +157,12 @@ class EncounterSection(Claim):
 
 class Correction(Claim):
     encounter_id: str
-    service_date: date
+    service_date: ClinicalDate
     field: CorrectedField
     replaced_time: Clock
     replacement_time: Clock
     source_status: SourceStatus
-    authored_on: date
+    authored_on: ClinicalDate
 
     @model_validator(mode="after")
     def _changes_value(self):
@@ -143,11 +173,11 @@ class Correction(Claim):
 
 class AssessmentResult(Claim):
     instrument: str
-    completed_on: date
+    completed_on: ClinicalDate
     form_id: str | None
     score: int
     source_status: SourceStatus
-    authored_on: date
+    authored_on: ClinicalDate
 
 
 class Observation(Claim):
@@ -156,12 +186,12 @@ class Observation(Claim):
     reporter: Reporter
     statement: str
     source_status: SourceStatus
-    authored_on: date
+    authored_on: ClinicalDate
 
 
 class PlanRequirement(Claim):
-    effective_start: date
-    effective_end: date
+    effective_start: ClinicalDate
+    effective_end: ClinicalDate
     min_therapy_days_per_week: int
     min_therapy_minutes_per_week: int
     eligible_service_types: list[ServiceType]

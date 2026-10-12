@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import re
 import sqlite3
 from datetime import date, datetime, time
 from pathlib import Path
 
-from .models import Claim, ExtractionEnvelope, Patient
+from .models import Claim, EncounterSection, ExtractionEnvelope, Patient
 
 
 class EvidenceError(ValueError):
+    pass
+
+
+class CompletenessError(ValueError):
     pass
 
 
@@ -26,6 +31,103 @@ def _quote_problem(content: str, quote: str) -> str | None:
     return None
 
 
+def _find_all(content: str, quote: str) -> list[int]:
+    starts: list[int] = []
+    pos = 0
+    while True:
+        i = content.find(quote, pos)
+        if i < 0:
+            return starts
+        starts.append(i)
+        pos = i + 1
+
+
+def _expand_occurrence(content: str, start: int, length: int) -> str:
+    """Grow a quote by whole lines (then characters) until it occurs exactly once."""
+    end = start + length
+    while True:
+        snippet = content[start:end]
+        if _quote_problem(content, snippet) is None:
+            return snippet
+        if start > 0:
+            prev_nl = content.rfind("\n", 0, start)
+            line_start = 0 if prev_nl < 0 else prev_nl + 1
+            if line_start < start:
+                start = line_start
+            elif prev_nl < 0:
+                start = 0
+            else:
+                prior_nl = content.rfind("\n", 0, prev_nl)
+                start = 0 if prior_nl < 0 else prior_nl + 1
+        elif end < len(content):
+            next_nl = content.find("\n", end)
+            end = len(content) if next_nl < 0 else max(end + 1, next_nl)
+        else:
+            return snippet
+
+
+def _section_region(content: str, section: EncounterSection) -> tuple[int, int] | None:
+    """Locate the document span owned by this encounter section."""
+    starts = _find_all(content, section.encounter_id)
+    if len(starts) != 1:
+        starts = []
+        for quote in section.evidence_quotes:
+            hits = _find_all(content, quote)
+            if len(hits) == 1:
+                starts = hits
+                break
+    if len(starts) != 1:
+        return None
+    start = starts[0]
+    later = [m.start() for m in re.finditer(r"\bHG-E\d+\b", content) if m.start() > start]
+    return start, (later[0] if later else len(content))
+
+
+def _resolve_quote(content: str, quote: str, region: tuple[int, int] | None) -> str:
+    if _quote_problem(content, quote) is None:
+        return quote
+    hits = _find_all(content, quote)
+    if not hits:
+        return quote
+    if len(hits) == 1:
+        return _expand_occurrence(content, hits[0], len(quote))
+    if region is None:
+        return quote
+    lo, hi = region
+    in_region = [h for h in hits if lo <= h < hi]
+    if len(in_region) != 1:
+        return quote
+    return _expand_occurrence(content, in_region[0], len(quote))
+
+
+def _fix_quotes(claim: Claim, content: str, region: tuple[int, int] | None) -> Claim:
+    return claim.model_copy(update={
+        "evidence_quotes": [_resolve_quote(content, q, region) for q in claim.evidence_quotes],
+    })
+
+
+def disambiguate_evidence_quotes(content: str, envelope: ExtractionEnvelope) -> ExtractionEnvelope:
+    """When a quote repeats under different encounter headings, bind it to its section and expand."""
+    encounters = []
+    for section in envelope.encounters:
+        region = _section_region(content, section)
+        attendance = _fix_quotes(section.attendance, content, region) if section.attendance else None
+        encounters.append(section.model_copy(update={
+            "evidence_quotes": [_resolve_quote(content, q, region) for q in section.evidence_quotes],
+            "attendance": attendance,
+            "patient_presence": [_fix_quotes(i, content, region) for i in section.patient_presence],
+            "breaks": [_fix_quotes(i, content, region) for i in section.breaks],
+            "charges": [_fix_quotes(c, content, region) for c in section.charges],
+        }))
+    return envelope.model_copy(update={
+        "encounters": encounters,
+        "corrections": [_fix_quotes(c, content, None) for c in envelope.corrections],
+        "assessments": [_fix_quotes(a, content, None) for a in envelope.assessments],
+        "observations": [_fix_quotes(o, content, None) for o in envelope.observations],
+        "plans": [_fix_quotes(p, content, None) for p in envelope.plans],
+    })
+
+
 def locate_quote(content: str, quote: str) -> tuple[int, int]:
     if problem := _quote_problem(content, quote):
         raise EvidenceError(problem)
@@ -38,6 +140,50 @@ def validate_evidence(content: str, envelope: ExtractionEnvelope) -> None:
                        if (p := _quote_problem(content, q))})
     if problems:
         raise EvidenceError("; ".join(problems))
+
+
+_CLOCK_SPAN = r"(?<![\d:])([01]?\d|2[0-3]):([0-5]\d)\s*(?:–|-|to)\s*([01]?\d|2[0-3]):([0-5]\d)"
+_STATED_BREAKS = (
+    re.compile(rf"(?i)(?:nontherapeutic\s+)?(?:group\s+)?\bbreaks?\b[:\s,]*(?:from\s+)?{_CLOCK_SPAN}"),
+    re.compile(rf"(?i)(?:connection was lost|disconnected|disconnection)\b.{{0,40}}{_CLOCK_SPAN}"),
+)
+
+
+def _hhmm(hour: str, minute: str) -> str:
+    return f"{int(hour):02d}:{minute}"
+
+
+def stated_break_clocks(content: str) -> list[tuple[str, str]]:
+    """Timed breaks or lost-connection intervals the document itself states."""
+    found: list[tuple[str, str]] = []
+    for pattern in _STATED_BREAKS:
+        found.extend((_hhmm(h1, m1), _hhmm(h2, m2)) for h1, m1, h2, m2 in pattern.findall(content))
+    return found
+
+
+def omitted_stated_breaks(content: str, envelope: ExtractionEnvelope) -> list[str]:
+    claimed = [
+        (interval.start.isoformat(timespec="minutes"), interval.end.isoformat(timespec="minutes"))
+        for section in envelope.encounters
+        for interval in section.breaks
+    ]
+    remaining = list(claimed)
+    omitted = []
+    for pair in stated_break_clocks(content):
+        if pair in remaining:
+            remaining.remove(pair)
+        else:
+            omitted.append(f"{pair[0]}-{pair[1]}")
+    return omitted
+
+
+def validate_stated_breaks(content: str, envelope: ExtractionEnvelope) -> None:
+    omitted = omitted_stated_breaks(content, envelope)
+    if omitted:
+        raise CompletenessError(
+            "document states timed nontherapeutic interval(s) that were not recorded as breaks: "
+            + ", ".join(omitted)
+        )
 
 
 def _at(day: date, clock: time) -> str:
@@ -138,7 +284,9 @@ def persist_extraction(
     if existing:
         raise AlreadyExtracted(existing[0])
     content = db.execute("SELECT content FROM documents WHERE id = ?", (document_id,)).fetchone()[0]
+    envelope = disambiguate_evidence_quotes(content, envelope)
     validate_evidence(content, envelope)
+    validate_stated_breaks(content, envelope)
     try:
         extraction_id = db.execute(
             "INSERT INTO extractions(document_id, version, producer, model_call_id, output_json) VALUES (?, ?, ?, ?, ?)",

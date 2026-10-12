@@ -13,7 +13,15 @@ from pydantic import ValidationError
 
 from .config import Settings
 from .models import ExtractionEnvelope
-from .persist import AlreadyExtracted, EvidenceError, persist_extraction, validate_evidence
+from .persist import (
+    AlreadyExtracted,
+    CompletenessError,
+    EvidenceError,
+    disambiguate_evidence_quotes,
+    persist_extraction,
+    validate_evidence,
+    validate_stated_breaks,
+)
 
 log = logging.getLogger(__name__)
 
@@ -23,7 +31,9 @@ Never reconcile with other documents, fill gaps, or infer facts.
 
 Evidence: every claim lists one or more quotes copied verbatim from the document: exact characters \
 including spacing, dashes, and punctuation, with no added quotation marks, ellipses, or rewording. Each \
-quote must occur exactly once in the document; extend it with neighbouring text when needed to make it unique.
+quote must occur exactly once in the document; extend it with neighbouring text when needed to make it unique. \
+When the same schedule or break line repeats under different date or encounter headings, include that heading \
+in the quote so the occurrence is unique.
 
 Encounters: emit one section per encounter per document section. Use the source encounter identifier, \
 or the appointment identifier when no encounter identifier exists. source_status is "draft" for draft, \
@@ -36,7 +46,10 @@ Use null when the section does not state attendance.
 stated patient contact, or connected video intervals. Never use scheduled times, clinician-only or \
 therapist session intervals, or portions when the patient was absent. Use several intervals when contact \
 was interrupted.
-- breaks: nontherapeutic intervals (breaks, disconnections) the document states for the encounter.
+- breaks: every timed nontherapeutic interval this document states (group break, unstructured \
+break, disconnection, lost connection). Do not omit a stated break because attendance or presence \
+is recorded here or elsewhere. Do not invent a break when the document only says those details \
+are recorded in another note.
 - charges: billing charges recorded for the encounter.
 
 Corrections: only when the document explicitly corrects a previously recorded patient arrival \
@@ -52,6 +65,10 @@ faithful paraphrase. Link encounter_id when the observation was made during an e
 
 Plans: treatment-plan participation requirements with effective dates, weekly minimum therapy days and \
 minutes, and the service types that count toward them.
+
+Dates: YYYY-MM-DD with a four-digit year from 1900 through 2099. When a row gives only a month and \
+day, use the year that same document states (extract date, signature, or header). Never put the month or \
+day in the year: January 22, 2026 is 2026-01-22, not 0122-01-22.
 
 Times: each start or end is a single local clock time as HH:MM (example: 10:45). Do not write a range, \
 Z, or UTC offset in a time field.
@@ -114,9 +131,11 @@ def _call_model(client: OpenAI, settings: Settings, document_id: int, content: s
         if response.status != "completed":
             raise ValueError(f"model response status: {response.status}")
         parsed = ExtractionEnvelope.model_validate_json(response.output_text)
+        parsed = disambiguate_evidence_quotes(content, parsed)
         validate_evidence(content, parsed)
+        validate_stated_breaks(content, parsed)
         result.envelope = parsed
-    except (EvidenceError, ValidationError) as exc:
+    except (EvidenceError, CompletenessError, ValidationError) as exc:
         result.error = f"{type(exc).__name__}: {exc}"
         result.evidence_rejected = True
     except Exception as exc:  # recorded per document; the batch reports all failures
@@ -138,7 +157,11 @@ def _extract_document(client: OpenAI, settings: Settings, document_id: int, cont
                     {"role": "assistant", "content": result.output_text},
                     {"role": "user", "content": f"The extraction failed validation: {result.error}. "
                                                 "Return the complete extraction with valid HH:MM clocks and every quote copied "
-                                                "verbatim and occurring exactly once in the document."}]
+                                                "verbatim and occurring exactly once. If a line repeats under different "
+                                                "date or encounter headings, include that heading in the quote. "
+                                                "If a timed break or disconnection was omitted, add it as a break with a "
+                                                "verbatim quote from this document. Dates must be YYYY-MM-DD with a "
+                                                "four-digit year from the document; do not encode the month or day as the year."}]
     return attempts
 
 
