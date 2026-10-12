@@ -277,10 +277,13 @@ def resolve(claims: list[EncounterClaim]) -> Resolution:
 
     if presence:
         if len(effective_maps) == 1:
-            distinct = {effective_maps[0][p.id] for p in presence}
+            by_source: dict[int, list[Span]] = defaultdict(list)
+            for p in presence:
+                by_source[p.extraction_id].append(effective_maps[0][p.id])
+            accounts = {_merge(spans) for spans in by_source.values()}
             for p in presence:
                 note = "; ".join(correction_notes.get(p.id, [])) or None
-                if len(distinct) > 1:
+                if len(accounts) > 1:
                     members[p.id] = ("disputed", note)
                 elif p.id in correction_notes:
                     members[p.id] = ("corrected", note)

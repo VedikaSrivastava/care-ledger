@@ -66,21 +66,26 @@ def _expand_occurrence(content: str, start: int, length: int) -> str:
             return snippet
 
 
-def _section_region(content: str, section: EncounterSection) -> tuple[int, int] | None:
-    """Locate the document span owned by this encounter section."""
+def _anchor(content: str, section: EncounterSection) -> int | None:
     starts = _find_all(content, section.encounter_id)
-    if len(starts) != 1:
-        starts = []
-        for quote in section.evidence_quotes:
-            hits = _find_all(content, quote)
-            if len(hits) == 1:
-                starts = hits
-                break
-    if len(starts) != 1:
-        return None
-    start = starts[0]
-    later = [m.start() for m in re.finditer(r"\bHG-E\d+\b", content) if m.start() > start]
-    return start, (later[0] if later else len(content))
+    if len(starts) == 1:
+        return starts[0]
+    for quote in section.evidence_quotes:
+        hits = _find_all(content, quote)
+        if len(hits) == 1:
+            return hits[0]
+    return None
+
+
+def _section_regions(content: str, sections: list[EncounterSection]) -> list[tuple[int, int] | None]:
+    """Span from each section's own identifier to the next extracted encounter identifier."""
+    located = [(start, index) for index, section in enumerate(sections) if (start := _anchor(content, section)) is not None]
+    located.sort()
+    regions: list[tuple[int, int] | None] = [None] * len(sections)
+    for position, (start, index) in enumerate(located):
+        end = located[position + 1][0] if position + 1 < len(located) else len(content)
+        regions[index] = (start, end)
+    return regions
 
 
 def _resolve_quote(content: str, quote: str, region: tuple[int, int] | None) -> str:
@@ -109,8 +114,7 @@ def _fix_quotes(claim: Claim, content: str, region: tuple[int, int] | None) -> C
 def disambiguate_evidence_quotes(content: str, envelope: ExtractionEnvelope) -> ExtractionEnvelope:
     """When a quote repeats under different encounter headings, bind it to its section and expand."""
     encounters = []
-    for section in envelope.encounters:
-        region = _section_region(content, section)
+    for section, region in zip(envelope.encounters, _section_regions(content, envelope.encounters)):
         attendance = _fix_quotes(section.attendance, content, region) if section.attendance else None
         encounters.append(section.model_copy(update={
             "evidence_quotes": [_resolve_quote(content, q, region) for q in section.evidence_quotes],
@@ -153,23 +157,41 @@ def _hhmm(hour: str, minute: str) -> str:
     return f"{int(hour):02d}:{minute}"
 
 
-def stated_break_clocks(content: str) -> list[tuple[str, str]]:
-    """Timed breaks or lost-connection intervals the document itself states."""
-    found: list[tuple[str, str]] = []
+def stated_break_occurrences(content: str) -> list[tuple[int, tuple[str, str]]]:
+    """Timed breaks or lost-connection intervals, with the offset of each statement."""
+    found: list[tuple[int, tuple[str, str]]] = []
     for pattern in _STATED_BREAKS:
-        found.extend((_hhmm(h1, m1), _hhmm(h2, m2)) for h1, m1, h2, m2 in pattern.findall(content))
-    return found
+        for match in pattern.finditer(content):
+            hour1, minute1, hour2, minute2 = match.groups()
+            found.append((match.start(), (_hhmm(hour1, minute1), _hhmm(hour2, minute2))))
+    return sorted(found)
+
+
+def stated_break_clocks(content: str) -> list[tuple[str, str]]:
+    return [pair for _, pair in stated_break_occurrences(content)]
 
 
 def omitted_stated_breaks(content: str, envelope: ExtractionEnvelope) -> list[str]:
-    claimed = [
+    """Each stated break must be recorded on the encounter section that contains it."""
+    regions = _section_regions(content, envelope.encounters)
+    claimed = [[
         (interval.start.isoformat(timespec="minutes"), interval.end.isoformat(timespec="minutes"))
-        for section in envelope.encounters
         for interval in section.breaks
-    ]
-    remaining = list(claimed)
+    ] for section in envelope.encounters]
     omitted = []
-    for pair in stated_break_clocks(content):
+    unplaced: list[tuple[str, str]] = []
+    for offset, pair in stated_break_occurrences(content):
+        owners = [index for index, region in enumerate(regions) if region and region[0] <= offset < region[1]]
+        if len(owners) != 1:
+            unplaced.append(pair)
+            continue
+        bucket = claimed[owners[0]]
+        if pair in bucket:
+            bucket.remove(pair)
+        else:
+            omitted.append(f"{pair[0]}-{pair[1]} ({envelope.encounters[owners[0]].encounter_id})")
+    remaining = [pair for bucket in claimed for pair in bucket]
+    for pair in unplaced:
         if pair in remaining:
             remaining.remove(pair)
         else:

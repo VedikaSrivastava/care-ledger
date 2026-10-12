@@ -1,6 +1,6 @@
 # Answers
 
-Generated from reconciliation run 1 (extraction version `llm-v2`, 31 documents reconciled, 0 not extracted). Full structured results: `answers.json`.
+Generated from reconciliation run 2 (extraction version `llm-v2`, 31 documents reconciled, 0 not extracted). Full structured results: `answers.json`.
 
 ## DEV-01
 
@@ -95,8 +95,8 @@ Consecutive weeks below goal: definite [['2026-01-05', '2026-01-12']]; dependent
 - accepted: attendance attendance=attended [final, authored 2026-01-21] "Patient contact occurred 13:00–13:20 and 13:30–13:55." (BH-D106_telehealth_2026-01-21.txt 221-274)
 - accepted: break starts_at=2026-01-21T13:20, ends_at=2026-01-21T13:30 [final, authored 2026-01-21] "Connection was lost from 13:20–13:30; there was no therapeutic contact during that interval." (BH-D106_telehealth_2026-01-21.txt 275-367)
 - accepted: encounter_detail service_date=2026-01-21, service_type=individual_therapy [final, authored 2026-01-21] "Individual psychotherapy | Encounter HG-E112 | Appointment HG-A112" (BH-D106_telehealth_2026-01-21.txt 52-118); "January 21, 2026 | Video | Clinician: Mira Patel, LCSW" (BH-D106_telehealth_2026-01-21.txt 165-219)
-- disputed: presence starts_at=2026-01-21T13:00, ends_at=2026-01-21T13:20 [final, authored 2026-01-21] "Patient contact occurred 13:00–13:20" (BH-D106_telehealth_2026-01-21.txt 221-257)
-- disputed: presence starts_at=2026-01-21T13:30, ends_at=2026-01-21T13:55 [final, authored 2026-01-21] "and 13:30–13:55." (BH-D106_telehealth_2026-01-21.txt 258-274)
+- accepted: presence starts_at=2026-01-21T13:00, ends_at=2026-01-21T13:20 [final, authored 2026-01-21] "Patient contact occurred 13:00–13:20" (BH-D106_telehealth_2026-01-21.txt 221-257)
+- accepted: presence starts_at=2026-01-21T13:30, ends_at=2026-01-21T13:55 [final, authored 2026-01-21] "and 13:30–13:55." (BH-D106_telehealth_2026-01-21.txt 258-274)
 
 
 ## DEV-05

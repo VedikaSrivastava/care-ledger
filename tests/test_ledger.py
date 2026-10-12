@@ -274,6 +274,66 @@ def test_repeated_schedule_line_is_bound_to_encounter_region():
     assert "January 29, 2026" in fixed.encounters[1].breaks[0].evidence_quotes[0]
 
 
+def test_repeated_break_disambiguates_without_harbor_grove_ids():
+    content = (
+        "January 22, 2026 | Encounter VISIT-113\n"
+        "Scheduled group 10:00–11:30. Nontherapeutic break 10:45–11:00.\n"
+        "January 29, 2026 | Encounter VISIT-118\n"
+        "Scheduled group 10:00–11:30. Nontherapeutic break 10:45–11:00.\n"
+    )
+    shared = "Scheduled group 10:00–11:30. Nontherapeutic break 10:45–11:00."
+    raw = envelope({
+        "encounters": [
+            {
+                "encounter_id": "VISIT-113", "service_date": "2026-01-22", "service_type": "group_therapy",
+                "source_status": "final", "authored_on": "2026-01-22",
+                "evidence_quotes": ["Encounter VISIT-113"],
+                "attendance": None, "patient_presence": [], "charges": [],
+                "breaks": [{"start": "10:45", "end": "11:00", "evidence_quotes": [shared]}],
+            },
+            {
+                "encounter_id": "VISIT-118", "service_date": "2026-01-29", "service_type": "group_therapy",
+                "source_status": "final", "authored_on": "2026-01-29",
+                "evidence_quotes": ["Encounter VISIT-118"],
+                "attendance": None, "patient_presence": [], "charges": [],
+                "breaks": [{"start": "10:45", "end": "11:00", "evidence_quotes": [shared]}],
+            },
+        ]
+    })
+    fixed = disambiguate_evidence_quotes(content, raw)
+    validate_evidence(content, fixed)
+    validate_stated_breaks(content, fixed)
+    assert "VISIT-113" in fixed.encounters[0].breaks[0].evidence_quotes[0]
+    assert "VISIT-118" in fixed.encounters[1].breaks[0].evidence_quotes[0]
+
+
+def test_break_on_the_wrong_encounter_is_rejected():
+    content = (DOCUMENTS / "BH-D107_group_activity_records_2026-01-22_and_29.txt").read_text(encoding="utf-8")
+    shared = "Scheduled group 10:00–11:30. Nontherapeutic break 10:45–11:00."
+    piled = envelope({
+        "encounters": [
+            {
+                "encounter_id": "HG-E113", "service_date": "2026-01-22", "service_type": "group_therapy",
+                "source_status": "final", "authored_on": "2026-01-22",
+                "evidence_quotes": ["January 22, 2026 | Encounter HG-E113"],
+                "attendance": None, "patient_presence": [], "charges": [],
+                "breaks": [
+                    {"start": "10:45", "end": "11:00", "evidence_quotes": ["January 22, 2026 | Encounter HG-E113\n" + shared]},
+                    {"start": "10:45", "end": "11:00", "evidence_quotes": ["January 29, 2026 | Encounter HG-E118\n" + shared]},
+                ],
+            },
+            {
+                "encounter_id": "HG-E118", "service_date": "2026-01-29", "service_type": "group_therapy",
+                "source_status": "final", "authored_on": "2026-01-29",
+                "evidence_quotes": ["January 29, 2026 | Encounter HG-E118"],
+                "attendance": None, "patient_presence": [], "charges": [], "breaks": [],
+            },
+        ]
+    })
+    with pytest.raises(CompletenessError, match="HG-E118"):
+        validate_stated_breaks(content, piled)
+
+
 def test_stated_break_clocks_ignore_mentions_without_times():
     for name in (
         "early_group_attendance_roster.txt",
@@ -387,6 +447,17 @@ def test_presence_and_breaks_stay_correlated_by_source():
     ])
     assert sorted(a.minutes for a in r.alternatives) == [50, 50]
     assert r.duration_status == "established"
+
+
+def test_reconnect_segments_from_one_note_are_accepted_together():
+    r = resolve([
+        claim(1, "presence", 1, starts_at=at("13:00"), ends_at=at("13:20")),
+        claim(2, "presence", 1, starts_at=at("13:30"), ends_at=at("13:55")),
+        claim(3, "break", 1, starts_at=at("13:20"), ends_at=at("13:30")),
+    ])
+    assert r.duration_status == "established"
+    assert [a.minutes for a in r.alternatives] == [45]
+    assert r.members[1][0] == r.members[2][0] == "accepted"
 
 
 def test_presence_only_roster_uses_other_documents_breaks():

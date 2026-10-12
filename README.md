@@ -86,7 +86,7 @@ That prevents co-facilitator notes, telehealth reconnects, and retransmitted ros
 
 ## Results
 
-Full answers with sources: [artifacts/answers.md](artifacts/answers.md).
+Full answers with sources: [artifacts/live/answers.md](artifacts/live/answers.md). The offline fixture report is [artifacts/answers.md](artifacts/answers.md).
 
 For Rowan Mercer (HG-M042), January 5–30:
 
@@ -106,7 +106,7 @@ The assignment overview describes multiple patients, inpatient care, and treatme
 
 ## Performance
 
-Fresh offline verification on the supplied 31 documents (50,137 bytes): 52 tests pass. See the committed benchmark for fresh processing time, checkpointed database size, and query latency measured on this machine.
+Fresh offline verification on the supplied 31 documents (50,137 bytes): 55 tests pass. See the committed benchmark for fresh processing time, checkpointed database size, and query latency measured on this machine.
 
 Reproducible evidence: [database](artifacts/fixture.sqlite), [answers](artifacts/answers.json), [benchmark](artifacts/benchmark.json), and [execution log](artifacts/execution.log). `reconciliation_ms` measures resolution computation before persistence; `fresh_processing_wall_s` measures the complete fresh processing step through CLI exit.
 
